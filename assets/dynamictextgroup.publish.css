@@ -4,9 +4,28 @@
  * *	@source: http://github.com/brockpetrie/dynamictextgroup
  * */
 	
-.field-dynamictextgroup div.stage ul.selection li { padding-right: 0; }
+.field-dynamictextgroup div.frame ul.selection li { 
+	padding-right: 0; 
+}
 
-.field-dynamictextgroup div.stage span {
+.field-dynamictextgroup div.frame .content {
+	overflow: hidden;
+	position: relative;
+	padding-right: 90px;
+}
+.field-dynamictextgroup div.frame header {
+	height: 18px;
+}
+.field-dynamictextgroup .destructor {
+	position: absolute;
+	top: 8px;
+	right: 10px;
+	color: rgba(0, 0, 0, 0.3);
+	border-bottom: none;
+	font-weight: normal;
+	margin: 0;	
+}
+.field-dynamictextgroup div.frame span {
 	padding: 3px 42px 4px 16px;
 	display: block;
 	width: 100%;
@@ -15,26 +34,27 @@
 	-moz-box-sizing: border-box;
 	}
 
-.field-dynamictextgroup div.stage span.fields {
+
+.field-dynamictextgroup div.frame span.fields {
 	background:none !important;
 	padding: 0px;
 	width: 100%;
 	}
-.field-dynamictextgroup div.stage span.fieldHolder {
+.field-dynamictextgroup div.frame span.fieldHolder {
 	background:none !important;
 	padding: 0 3px 0 0;
 	width: 50%;
 	position:relative;
 	float: left;
 	}
-	.field-dynamictextgroup div.stage span.fieldHolder span {
+	.field-dynamictextgroup div.frame span.fieldHolder span {
 		}
 
-.field-dynamictextgroup div.stage div.clear {
+.field-dynamictextgroup div.frame div.clear {
 	clear:both;
 	}
 
-.field-dynamictextgroup div.stage span.fields em.label {
+.field-dynamictextgroup div.frame span.fields em.label {
 	color: #BBB;
 	position: absolute;
 	top:0;
@@ -43,20 +63,20 @@
 	}
 	label > i > span.req { color:#d43; }
 	.invalid label > i > span.req { color:#fff; }
-.field-dynamictextgroup div.stage span.fields em.end.label {
+.field-dynamictextgroup div.frame span.fields em.end.label {
 	top: 28px;
 	}
 
 
 
 /*	*	*	Focus Styling	*	*	*/
-.field-dynamictextgroup div.stage span.fields.focus input,
-.field-dynamictextgroup div.stage span.fields.focus .customStyleSelectBox {
+.field-dynamictextgroup div.frame span.fields.focus input,
+.field-dynamictextgroup div.frame span.fields.focus .customStyleSelectBox {
 	box-shadow: 0 0 5px #a7a7a7 !important;
 	-webkit-box-shadow: 0 0 5px #a7a7a7 !important;
 	-moz-box-shadow: 0 0 5px #a7a7a7 !important;
 	}
-.field-dynamictextgroup div.stage span.fields input:focus { outline: none; }
+.field-dynamictextgroup div.frame span.fields input:focus { outline: none; }
 
 
 
@@ -70,7 +90,7 @@
 	}
 	.field-dynamictextgroup div.invalid label { border:none; margin-top:1px; margin-bottom:1.5em; }
 	.field-dynamictextgroup div.invalid label i { top:0; right:0; }
-	.field-dynamictextgroup div.invalid .stage { margin-bottom:0.75em; }
+	.field-dynamictextgroup div.invalid .frame { margin-bottom:0.75em; }
 	.field-dynamictextgroup div.invalid p {
 		margin: 0;
 		padding: 0;
@@ -94,7 +114,7 @@
 
 
 /*	*	*	Textfield styling	*	*	*/
-.field-dynamictextgroup div.stage span.fields input[type="text"] {
+.field-dynamictextgroup div.frame span.fields input[type="text"] {
 	width: 100%;
 	font-size: 109.09%;
 	border: 1px solid #C2C2C2;
@@ -115,7 +135,7 @@
 
 
 /*	*	*	Select list styling	*	*	*/
-.field-dynamictextgroup div.stage span.fields select {
+.field-dynamictextgroup div.frame span.fields select {
 	position:relative;
 	top:3px;
 	font-size: 109.09%;
@@ -151,9 +171,9 @@
 
 
 /* Radio Styling*/
-.field-dynamictextgroup div.stage .fieldtype-radio input, .field-dynamictextgroup div.stage .fieldtype-checkbox input { position:relative; top:1px; }
-.field-dynamictextgroup div.stage .fieldtype-radio label,
-.field-dynamictextgroup div.stage .fieldtype-checkbox label {
+.field-dynamictextgroup div.frame .fieldtype-radio input, .field-dynamictextgroup div.stage .fieldtype-checkbox input { position:relative; top:1px; }
+.field-dynamictextgroup div.frame .fieldtype-radio label,
+.field-dynamictextgroup div.frame .fieldtype-checkbox label {
 	margin:0;
 	padding: 5px 4px 5px 4px !important;
 	border:1px solid transparent;
@@ -164,3 +184,49 @@
 	border-radius: 2px;
 	background:none;
 	}
+
+.dbox {
+	height: 100%;
+	padding: 0 6px;
+	/*border-left: 1px solid #ccc;*/
+}
+.dbox:first-child {
+	padding: 0 6px;
+	border: none;
+}
+.dtg-text.dbox, .dtg-select.dbox {
+	-webkit-box-flex: 2;
+	-moz-box-flex: 2;
+	box-flex: 2;
+}	
+.dtg-checkbox.dbox,
+.dtg-radio.dbox {
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+}	
+.dtg-checkbox.dbox label, 
+.dtg-radio.dbox label {
+	/*top: 20px;*/
+	margin-bottom: 0;
+}	
+.content.flexgroup {
+	display: -webkit-box;
+	display: -moz-box;
+	display: box;
+
+	-webkit-box-orient: horizontal; 
+	-webkit-box-align: center;
+	-webkit-box-pack: justify;
+	-webkit-box-ordinal-group: 1;
+
+	-moz-box-orient: horizontal; 
+	-moz-box-align: center;
+	-moz-box-pack: justify;
+	-moz-box-ordinal-group: 1;
+
+	box-orient: horizontal; 
+	box-align: center;
+	box-pack: justify;
+	box-ordinal-group: 1;
+}

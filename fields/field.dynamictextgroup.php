@@ -6,19 +6,28 @@
 	if(!defined('__IN_SYMPHONY__')) die('<h2>Symphony Error</h2><p>You cannot directly access this file</p>');
 
 	require_once(EXTENSIONS . '/dynamictextgroup/lib/class.textgroup.php');
-	if(!class_exists('Stage')) {
-		require_once(EXTENSIONS . '/dynamictextgroup/lib/stage/class.stage.php');
-	}
+	//require_once(TOOLKIT . '/fields/field.select.php');
 
 	Class fielddynamictextgroup extends Field {
 
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#__construct * * */
-		function __construct(&$parent) {	
-			parent::__construct($parent);
+		function __construct() {	
+			parent::__construct();
 			$this->_name = __('Dynamic Text Group');
 			$this->_required = true;
 			$this->set('required', 'no');
 		}
+
+		private static $defaultSettings = array(
+			'handle' => 'field',
+			'label' => 'field',
+			'options' => array(
+				'type' => 'text',
+				'sortorder' => 1,
+				'validationRule' => NULL,
+				'static_values' => ''
+			)
+		);
 	
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#canFilter * * */
@@ -48,13 +57,104 @@
 		function allowDatasourceParamOutput() {
 			return false;
 		}
+		
+		
+		private static function _getToggleStates($options, $static) {
+			$values = preg_split('/,\s*/i', $static, -1, PREG_SPLIT_NO_EMPTY);
+
+			if ($options != '') self::findAndAddDynamicOptions($values, $options);
+
+			$values = array_map('trim', $values);
+			$states = array();
+
+			foreach ($values as $value) {
+				$value = $value;
+				$states[$value] = $value;
+			}
+			/*
+			if($this->get('sort_options') == 'yes') {
+				natsort($states);
+			}
+			*/
+			natsort($states);
+
+			return $states;
+		}
+
+		public static function findAndAddDynamicOptions(&$values, $options){
+			if(!is_array($values)) $values = array();
+
+			$results = false;
+
+			// Ensure that the table has a 'value' column
+			if((boolean)Symphony::Database()->fetchVar('Field', 0, sprintf("
+					SHOW COLUMNS FROM `tbl_entries_data_%d` LIKE '%s'
+				", $options, 'value'
+			))) {
+				$results = Symphony::Database()->fetchCol('value', sprintf("
+						SELECT DISTINCT `value`
+						FROM `tbl_entries_data_%d`
+						ORDER BY `value` ASC
+					", $options
+				));
+			}
+
+			// In the case of a Upload field, use 'file' instead of 'value'
+			if(($results == false) && (boolean)Symphony::Database()->fetchVar('Field', 0, sprintf("
+					SHOW COLUMNS FROM `tbl_entries_data_%d` LIKE '%s'
+				", $options, 'file'
+			))) {
+				$results = Symphony::Database()->fetchCol('file', sprintf("
+						SELECT DISTINCT `file`
+						FROM `tbl_entries_data_%d`
+						ORDER BY `file` ASC
+					", $options
+				));
+			}
+
+			if($results) {
+				//if($this->get('sort_options') == 'no') {
+					natsort($results);
+				//}
+
+				$values = array_merge($values, $results);
+			}
+		}
 	
+		private function getSectionLinkVals($selected = NULL) {
+			$sections = SectionManager::fetch(NULL, 'ASC', 'name');
+			$field_groups = array();
+			if(is_array($sections) && !empty($sections))
+				foreach($sections as $section) $field_groups[$section->get('id')] = array('fields' => $section->fetchFields(), 'section' => $section);
+
+			$options = array(
+				array('', false, __('None')),
+			);
+			foreach($field_groups as $group){
+				if(!is_array($group['fields'])) continue;
+
+				$fields = array();
+				foreach($group['fields'] as $f){
+					if($f->get('id') != $this->get('id') && $f->canPrePopulate()) $fields[] = array($f->get('id'), ($selected == $f->get('id')), $f->get('label'));
+				}
+
+				if(is_array($fields) && !empty($fields)) $options[] = array('label' => $group['section']->get('name'), 'options' => $fields);
+			}
+	//		echo '<pre>';
+	//		print_r($options);
+	//		echo '</pre>';
+			$selectbox = Widget::Select('dynamicValues', $options);
+			return $selectbox->generate();
+		}
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displaySettingsPanel * * */
-		function displaySettingsPanel(&$wrapper, $errors=NULL) {
+		public function displaySettingsPanel(&$wrapper, $errors=NULL) {
 			
 			// Initialize field settings based on class defaults (name, placement)
 			parent::displaySettingsPanel($wrapper, $errors);
+
+			$sortorder = $this->get('sortorder');
+
 			
 			// Field Editor
 			if ($this->get('id')) {
@@ -64,101 +164,230 @@
 				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.js', 104, false);
 				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.css', 'screen', 105, false);
 				
-				$tblocks = '<input type="hidden" id="fieldschema" name="fields['.$this->get('sortorder').'][schema]" value=\''.$this->get('schema').'\' />';
-				$tblocks .= '<input type="hidden" id="addfields" name="fields['.$this->get('sortorder').'][addfields]" value="" />';
-				$tblocks .= '<input type="hidden" id="delfields" name="fields['.$this->get('sortorder').'][delfields]" value="" />';
-				$tblocks .= '<input type="hidden" id="renfields" name="fields['.$this->get('sortorder').'][renfields]" value="" />';
-		
-				$fieldset = new XMLElement('fieldset', '<legend>Field Editor</legend><div id="stageHolder"><div id="stage"></div><div id="messages"></div><a class="dtgButton" id="add">Add Field</a><br clear="all" /></div>'.$tblocks);
+				$opt_templates = '';
+
+				foreach(explode(' ', Textgroup::getFieldTypes()) as $key) {
+					$fn = 'tpl_options_' . $key;
+					$args = $key === 'select' ? array('dynamic_values' => $this->getSectionLinkVals()) : NULL;
+					$opt_templates .= Textgroup::$fn(true, $args);
+				} 
+
+				$fieldset = new XMLElement('fieldset');
+				$label = Widget::Label(__('Field Editor'));
+				$field_wrapper = new XMLElement('div', $opt_templates, array(
+					'class' => 'frame dynamictextgroup'
+				));
+				$field_list = new XMLElement('ol');
+
+				$field_wrapper->appendChild($field_list);
+				$fieldset->appendChild($label);
+				$fieldset->appendChild($field_wrapper);
+
+				$hidden_fields = Array();
+				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', $this->get('schema')), 'hidden', array('class' => 'schema'));
+				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][addfields]', NULL, 'hidden', array('class' => 'addfields'));
+				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][delfields]', NULL, 'hidden', array('class' => 'delfields'));
+				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][renfields]', NULL, 'hidden', array('class' => 'renfields'));
+
+				//$hidden_fields[] = Widget::Input('fields['. $sortorder . '][fieldcount]', $this->get('fieldcount'), 'hidden');
+
+				$field_wrapper->appendChildArray($hidden_fields);
+				$schema = $this->get('schema');
+
+				//print_r($this->get('id'));
+				$fields = array();
+				if (isset($schema)) {
+					foreach (json_decode($schema, true) as $s) {
+						$type = $s['options']['type'];
+						 switch ($type) {
+						 	case 'select':
+								$opt_template = Textgroup::tpl_options_select(false, array('static_values' => $s['options']['static_values'], 'dynamic_values' => $this->getSectionLinkVals($s['options']['dynamic_values']), 'required' => $s['options']['required'], 'allow_multiple' => $s['options']['allow_multiple']));
+						 		break;
+						 	case 'text':
+								$opt_template = Textgroup::tpl_options_text(false, array('value' => $s['options']['validationRule'], 'required' => $s['options']['required']));
+						 		break;
+						 	case 'radio':
+								$opt_template = Textgroup::tpl_options_radio(false, array('group_name' => $s['options']['group_name'], 'add_group_field' => (intVal($this->get('allow_new_items')) == 1) ? false : true));
+						 		break;
+						 	
+							default:
+								$fn = 'tpl_options_' . $type;
+								$opt_template = Textgroup::$fn(false);
+						 		break;
+						 }
+								
+						$fields[] = self::createSettinsFields($s['label'], $s, $this->get('element_name'), 'instance', $opt_template);
+					}
+				}
+				$fields[] = self::createSettinsFields($s['label'], NULL, $this->get('element_name'), 'template', Textgroup::tpl_options_text(false));
+				$field_list->appendChildArray($fields);
 				$wrapper->appendChild($fieldset);
 			} else {
-				$fieldset = new XMLElement('fieldset', '<legend>Field Editor</legend>Please save the section to enable the Field Editor.<br /><br />');
+				$fieldset = new XMLElement('fieldset', '<label>' . __('Field Editor') . '</label>' . __('Please save the section to enable the Field Editor') . '<br /><br />');
 				$wrapper->appendChild($fieldset);
 			}
 
 			// Behaviour
-			$fieldset = Stage::displaySettings(
-				$this->get('id'), 
-				$this->get('sortorder'), 
-				__('Behaviour'),
-				array('constructable', 'draggable')
-			);
+			// $fieldset = Stage::displaySettings(
+			//	$this->get('id'), 
+			//	$this->get('sortorder'), 
+			//	__('Behaviour'),
+			//	array('constructable', 'draggable')
+			// );
+			//
+
+			$fieldset = new XMLElement('div');
 			$group = $fieldset->getChildren();
+			$wrapper->appendChild($fieldset);
+
+			// Options
+			$fieldset = new XMLElement('fieldset');
+			$fieldset->appendChild(Widget::Label(__('Options')));
+			$two_columns = new XMLElement('div', NULL, array('class' => 'two columns'));
+
+			$this->appendCheckbox($two_columns, 'allow_new_items', __('Allow creating new items'));
+			if ($this->get('allow_new_items')) {
+				$this->appendCheckbox($two_columns, 'allow_sorting_items', __('Allow sorting items'));
+			}
+
+			$fieldset->appendChild($two_columns);
 			$wrapper->appendChild($fieldset);
 
 			// General
 			$fieldset = new XMLElement('fieldset');
-			$group = new XMLElement('div', NULL, array('class' => 'group'));
+			$group = new XMLElement('div', NULL, array('class' => 'two columns'));
 			$this->appendRequiredCheckbox($group);
 			$this->appendShowColumnCheckbox($group);
 			$fieldset->appendChild($group);
 			$wrapper->appendChild($fieldset);
 		}
+
+		public function appendCheckbox(XMLElement &$wrapper, $fname = NULL, $value= NULL) {
+
+			$order = $this->get('sortorder');
+			$name = "fields[{$order}][{$fname}]";
+
+			$wrapper->appendChild(Widget::Input($name, '0', 'hidden'));
+
+			$label = Widget::Label();
+			$label->addClass('column');
+			$input = Widget::Input($name, '1', 'checkbox');
+
+			if (intval($this->get($fname)) > 0) {
+				$input->setAttribute('checked', 'checked');
+			}
+
+			$label->setValue(__('%s ' . $value, array($input->generate())));
+			$wrapper->appendChild($label);
+		}
+
+
+		public static function createSettinsFields($handle=NULL, $options=NULL, $name=NULL, $class=NULL, $opt_content=NULL) {
+			$header = new XMLElement('div', NULL, array('class' => 'content'));
+			$draghandle = new XMLElement('span', NULL, array('class' => 'draw-handle'));
+			$typeselector = new XMLElement('span', NULL, array('class' => 'options'));
+			$label = Widget::Input('dynamictextgroup-item', $handle);
+			$options_box = new XMLElement('div', '<div class="options-box-inner">' . (is_string($opt_content) ? $opt_content : '') . '</div>', array('class' => 'options-box collapsed'));
+
+			$li = new XMLElement('li', NULL, array(
+				'class' => $class . ' field-holder',
+				'data-settings' => is_array($options) ? preg_replace('/\"/i', '&#34;', json_encode($options)) : preg_replace('/\"/i', '&#34;', json_encode(self::$defaultSettings)),
+				'data-name' => $name,
+				'data-type' => $name,
+			));
+			$header->appendChild($draghandle);
+			$header->appendChild($label);
+			$header->appendChild($typeselector);
+			$header->appendChild($options_box);
+			$li->appendChild($header);
+			return $li;
+		}
 		
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkFields * * */
-		function checkFields(&$errors, $checkForDuplicates=true) {
+		public function checkFields(&$errors, $checkForDuplicates=true) {
 			parent::checkFields($errors, $checkForDuplicates);
 		}
 	
-	
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#commit * * */
-		function commit() {
-			// Prepare commit
+		public function commit() {
 			if(!parent::commit()) return false;
-			$id = $this->get('id');
-			if($id === false) return false;
-			
-			// Set up fields
-			$fields = array();
-			$fields['field_id'] = $id;
-			
-			// Parse schema
-			if ($this->get('schema') != '') {
-				$schema = json_decode($this->get('schema'));
-				$ct = count($schema);
-				$totalW = 100;
-				foreach ($schema as $i=>&$field) {
-					$field->handle = Lang::createHandle($field->label);
-					$totalW -= $field->width;
-				}
-				$schema[$ct-1]->width += $totalW;
-				
-				$fields['fieldcount'] = $ct;
-				$fields['schema'] = json_encode($schema);
-			}
-			
-			// Parse rename data
-			if ($this->get('renfields') != '') {
-				$renfields = json_decode($this->get('renfields'));
-				foreach ($renfields->handles as $key=>$rename) self::__alterTable(2, $rename, Lang::createHandle($renfields->labels[$key]));
-			}
-			// Parse delete data
-			if ($this->get('delfields') != '') {
-				$delfields = json_decode($this->get('delfields'));
-				foreach ($delfields->handles as $deletion) self::__alterTable(0, $deletion);
-			}
-			// Parse add data
-			if ($this->get('addfields') != '') {
-				$addfields = json_decode($this->get('addfields'));
-				foreach ($addfields->labels as $addition) self::__alterTable(1, Lang::createHandle($addition));
-			}
-	
-			// Save new stage settings for this field
-			$stage = $this->get('stage');
-			$stage['destructable'] = 1;
-			Stage::saveSettings($this->get('id'), $stage, 'dynamictextgroup');
 
-			// Delete old field settings
-			Symphony::Database()->query(
-				"DELETE FROM `tbl_fields_" . $this->handle() . "` WHERE `field_id` = '$id' LIMIT 1"
-			);
+			$id = $this->get('id');
+			$fields = array();
+			$schema = $this->get('schema');
+			$schema = isset($schema) ? json_decode($this->get('schema'), true) : NULL;
+
+
+			$fields['field_id'] = $id;
+			$fields['fieldcount'] = sizeof($schema);
+			$fields['allow_new_items'] = $this->get('allow_new_items') ? 1 : 0;
+			$fields['allow_sorting_items'] = $this->get('allow_sorting_items') ? 1 : 0;
+
+			// add new fields
+			$fields_added = json_decode($this->get('addfields'), true);
+
+			if (is_array($fields_added) && !empty($fields_added)) {
+
+				foreach($fields_added as $handle => $value) {
+					$value = trim($value);
+					if (strlen($value) > 0) self::__alterTable(1, Lang::createHandle($value));
+				}
+			}
 			
-			// Save new field setting
+			// remove deleted fields
+			$fields_deleted = json_decode($this->get('delfields'), true);
+
+			if (is_array($fields_deleted) && !empty($fields_deleted)) {
+				foreach($fields_deleted as $handle) {
+					self::__alterTable(0, $handle);
+				}
+			}
+
+			// rename existing fields that where renemaed
+			$fields_renamed = json_decode($this->get('renfields'), true);
+
+			if (is_array($fields_renamed) && !empty($fields_renamed)) {
+
+				foreach($fields_renamed as $handle => $value) {
+					$value = trim($value);
+					if (strlen($value) > 0) self::__alterTable(2, $handle, Lang::createHandle($value));
+				}
+			}
+
+
+			$this->removeSectionAssociation($id);
+			$keys = array();
+
+			if (!is_null($schema)) {
+				foreach($schema as &$field) {
+
+					if (!isset($field['handle'])) {
+						$field['handle'] = Lang::createHandle($field['label']);
+					}
+
+					$field_id = $field['options']['dynamic_values'];
+
+					if (!is_null($field_id)) {
+						$this->createSectionAssociation(NULL, $id, $field_id, true);
+					}
+
+					if (isset($field['options']['group_name']) && $fields['allow_new_items'] == 1) {
+						unset($field['options']['group_name']);
+					}
+
+					$keys[][$field['handle']] = $field['handle'];
+				}
+				$fields['schema'] = json_encode($schema);
+
+			}
+
+			//self::saveSettings($this->get('id'), $keys, 'dynamictextgroup');
+
+			Symphony::Database()->query("DELETE FROM `tbl_fields_" . $this->handle() . "` WHERE `field_id` = '$id' LIMIT 1");
 			return Symphony::Database()->insert($fields, 'tbl_fields_' . $this->handle());
-			
-		}
-		
+		}	
+
+		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#commit * * */
 		function __alterTable($mode, $col, $rename=NULL) {
 			// Function $mode options:
 			// 0 = Delete column; 	e.g.  __alterTable(0, 'badcolumn');
@@ -181,25 +410,48 @@
 					return false;
 			}
 		}
-	
+		
+		private function _makePublishSelectOptions($data = NULL, stdClass $field) {
+
+			if ($field->options->type !== 'select') return;
+
+			$states = self::_getToggleStates($field->options->dynamic_values, $field->options->static_values);
+
+			$select_opts = array(
+				array(NULL, false, NULL)
+			);
+			$options = array();
+
+			foreach($states as $handle => $v){
+				$options[] = array(General::sanitize($v), ($v == $data), General::sanitize($v));
+			}
+
+			$select_opts[] = array('label' => $field->label, 'options' => $options);
+
+			$field->options->selectOptions = $select_opts;
+			unset($select_opts);
+		}	
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displayPublishPanel * * */
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL) {
 	
 			// Append assets
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/lib/stage/stage.publish.js', 101, false);
-			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/lib/stage/stage.publish.css', 'screen', 102, false);
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 103, false);
-			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 104, false);
+			//Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/lib/stage/stage.publish.js', 101, false);
+			//Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/lib/stage/stage.publish.css', 'screen', 102, false);
+			Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 103, false);
+			Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 104, false);
+			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 105, false);
 			
 			// Get settings
 			$settings = array();
+			/*
 			$stage = Stage::getComponents($this->get('id'));
 			if(in_array('constructable', $stage)) {
 				$settings[] = 'multiple';
 			} else {
 				$settings[] = 'single';
-			}
+			}*/
+			//$template = Textgroup::createTemplate($this->get('element_name'), $fieldCount, NULL, NULL, $schema);	
 			
 			$schema = json_decode($this->get('schema'));
 			$fieldCount = $this->get('fieldcount');
@@ -215,22 +467,40 @@
 				}
 				
 				for($i=0; $i<$entryCount; $i++) {
-					foreach ($schema as $field) {
+					foreach ($schema as &$field) {
 						$entryValues[$i][] = $data[$field->handle][$i];
+
+						// append select box options
+						if ($field->options->type == 'select') {
+							$this->_makePublishSelectOptions($data[$field->handle][$i], $field);
+						}
 					}
 					$content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, $entryValues[$i], NULL, $schema);
 				}
 			}
 			// Blank entry
 			else {
+				foreach ($schema as &$field) {
+					// append select box options
+					if ($field->options->type == 'select') {
+						$this->_makePublishSelectOptions(NULL, $field);
+					}
+				}
 				$content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, NULL, NULL, $schema);
 			}
-			
+				
 			// Add template
-			$content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, NULL, 'template empty create', $schema);
-		
+			if ($this->get('allow_new_items')) {
+				$content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, NULL, 'template', $schema);
+			}
+			
 			// Create stage
-			$stage = Stage::create('dynamictextgroup', $this->get('id'), implode($settings, ' '), $content);
+			//$stage = Stage::create('dynamictextgroup', $this->get('id'), implode($settings, ' '), $content);
+			$stage = new XMLElement('div', NULL, array('class' => 'dtg-stage'));
+			$stageInner = new XMLElement('ol');
+			$stage->appendChild($stageInner);
+			$stageInner->appendChildArray($content);
+			//$stageInner->appendChild($template);
 			
 			// Field label
 			$holder = new XMLElement('div');
@@ -238,7 +508,13 @@
 			$holder->appendChild($label);
 			
 			// Append Stage
-			if($stage) $holder->appendChild($stage);
+			$holder->appendChild($stage);
+			if ($this->get('allow_new_items')) {
+				$stage->addClass('frame');
+			}
+			if ($this->get('allow_sorting_items')) {
+				$stage->addClass('sortable');
+			}
 			
 			if($flagWithError != NULL) $wrapper->appendChild(Widget::wrapFormElementWithError($holder, $flagWithError));
 			else $wrapper->appendChild($holder);
