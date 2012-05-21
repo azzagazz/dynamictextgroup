@@ -311,7 +311,6 @@
 			});
 
 			$('form').on('submit', $.proxy(fieldEditor.onSubmit, fieldEditor));
-			window.fieldEditor = fieldEditor;
 		});
 	});
 } (jQuery.noConflict(), this.Symphony, this));
