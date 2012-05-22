@@ -11,7 +11,7 @@
 			'checkbox'	=> 'checkbox',
 		);
 
-		public static function createNewTextGroup($element, $fieldCount=2, $values=NULL, $class=NULL, $schema=NULL) {
+		public static function createNewTextGroup($element, $fieldCount=2, $values=NULL, $class=NULL, $schema=NULL, $sortable = false) {
 			// Additional classes
 			$classes = array();
 			if($class) {
@@ -20,9 +20,11 @@
 			
 			// Field creator
 			$fields = '';
+			$draw_handle = $sortable ? '<div class="draw-handle"></div>' : '';
 			for ($i=0; $i<$fieldCount; $i++) {
 				$fieldVal = ($values != NULL && $values[$i] != ' ') ? $values[$i] : NULL;
 				$type = $schema[$i]->options->type;
+
 				$fn = strtoupper($type{0}) . substr($type, 1);
 				$fn = sprintf('__create%sField', $fn);
 
@@ -31,7 +33,7 @@
 			// Create element
 			return new XMLElement(
 				'li', 
-				'<div class="content flexgroup">' . $fields . '</div>',
+				'<div class="content flexgroup">' . $draw_handle . $fields . '</div>',
 				array(
 					'class' => implode($classes, ' '),
 					'data-name' => 'dynamictextgroup item',
@@ -58,6 +60,7 @@
 			$handle = $schema->handle; 
 			$label = $schema->label; 
 			$options = $schema->options->selectOptions; 
+
 			$fieldname = 'fields['. $element .']['. $handle .'][]';
 			$fielname .= $schema->options->allow_multiple ? '[]' : '';
 
@@ -129,24 +132,37 @@
 			return self::field_types;
 		} 
 
-		public static function tpl_options_radio($wrap = false, $options = NULL) {
+		public static function make_template($wrap = false, $type = null, $options = NULL) {
+			$fn = '_tpl_options_' . $type;
+			return self::$fn($wrap, $options); 
+		}
+
+		/**
+		 *  settings template for radio field 
+		 */
+		public static function _tpl_options_radio($wrap = false, $options = NULL) {
+			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
 			$add_group_field = isset($options['add_group_field']) && $options['add_group_field'];
 			$fields = '';
 			$fields .= $add_group_field ? '<div class="two columns"><div class="column">' : '';
 			$fields .= self::_makeTypeOptions('radio', false);
 			$fields .= $add_group_field ? '</div><div class="column"><label>' . __('group name') . '<input type="text" name="radio_group" value="' . (isset($options['group_name']) ? $options['group_name'] : '') . '"/></label>' : '';
 			$fields .= $add_group_field ? '<p class="help">' . __('only avilable if creating multiple items is deactiveted') . '</p></div></div>' : '';
-			//$fields .= self::_appendRequiredCheckbox($required);
+			$fields .= self::_appendRequiredCheckbox($required);
 			if ($wrap) {
 				$fields = self::_wrapInScriptTag('radio', $fields);
 			}
 			return $fields;
 		}
-
-		public static function tpl_options_select($wrap = false, $options = NULL) {
+		
+		/** 
+		 * settings template select field 
+		 */
+		public static function _tpl_options_select($wrap = false, $options = NULL) {
 			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
 			$checked = (is_array($options) && isset($options['allow_multiple'])) ? ' checked' : '';
 			$dynamic_values =  (is_array($options) && isset($options['dynamic_values'])) ? $options['dynamic_values'] : NULL;
+
 			$fields	 = self::_makeTypeOptions('select');
 			$fields .= '<fieldset><div class="two columns"><div class="column"><label>' . __('Predefined Values') . '<i>' . __('Optional') . '</i>';
 			$fields .= '<input type="text" name=selectValues value="' . $options['static_values']. '"/></div><div class="column"></label>';
@@ -161,9 +177,12 @@
 			return $fields;
 		}
 
-		public static function tpl_options_text($wrap = false, $options = NULL) {
+		/** 
+		 * settings template for text field 
+		 */
+		public static function _tpl_options_text($wrap = false, $options = NULL) {
 			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
-			$value = (is_array($options) && isset($options['value'])) ? $options['value'] : NULL;
+			$value = (is_array($options) && isset($options['validationRule'])) ? $options['value'] : NULL;
 			$fields = self::_makeTypeOptions('text');
 			$fields .= '<fieldset><label>' . __('Validation Rule') . '</label>';
 			$fields .= '<input type="text" name=validationRule value="' . $value .'" placeholder="' . __('Enter a regex pattern') . '"/>';
@@ -177,11 +196,16 @@
 			}
 			return $fields;
 		}
-		public static function tpl_options_checkbox($wrap = false) {
+
+		/**
+		 *  settings template for checkbox field 
+		 */
+		public static function _tpl_options_checkbox($wrap = false) {
 			$fields = self::_makeTypeOptions('checkbox');
 			if ($wrap) {
 				$fields = self::_wrapInScriptTag('checkbox', $fields);
 			}
 			return $fields;
 		}
+
 	}

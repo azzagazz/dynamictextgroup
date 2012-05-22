@@ -17,6 +17,7 @@
 		<dependency>stage</dependency>
 	</dependencies>
 	<releases>
+		<release version="2.1.1dev" date="2011-22-05" min="2.3.0">Experimental Release</release>
 		<release version="2.1dev" date="2011-21-05" min="2.3.0">Experimental Release</release>
 		<release version="2.0" date="2011-06-05" min="2.3.0">Experimental Release</release>
 		<release version="1.0" date="2011-06-05" min="2.2.0">Initial release</release>

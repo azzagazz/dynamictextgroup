@@ -290,6 +290,7 @@
 				items: '.field-holder',
 				handles: '.draw-handle'
 			});
+
 			fieldEditor = new DynamicTextGroupEditor(element, {
 				onInstanceInit: function (instance) {
 					var editor = this,

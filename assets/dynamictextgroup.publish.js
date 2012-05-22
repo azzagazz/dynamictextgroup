@@ -34,6 +34,12 @@
 				fields.val('no');
 				field.val('yes');
 			});
+
+
+			$('div.field-dynamictextgroup .sortable').symphonyOrderable({
+				items: '.instance',
+				handles: '.draw-handle'
+			});
 		});
 	});
 } (jQuery.noConflict(), this));
