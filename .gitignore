@@ -1,8 +1,0 @@
-.DS_*
-.DS_Store
-*.un~
-dev/ 
-dev/* 
-docs/
-docs/*
-*.psd

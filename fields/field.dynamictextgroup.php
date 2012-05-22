@@ -149,6 +149,80 @@
 				$values = array_merge($values, $results);
 			}
 		}
+
+		/**
+		 * create the fieldeditor fieldset on settings panel
+		 *
+		 * @return Mixed Boolean false or XMLElement
+		 */
+		private function _createFieldEditor() {
+
+			if (!$this->get('id')) {
+				return false;
+			}
+
+			$opt_templates = '';
+			$sortorder = $this->get('sortorder');
+
+			// create field-setting templates
+			foreach(explode(' ', Textgroup::getFieldTypes()) as $type) {
+				$opts = $type === 'select' ? array('dynamic_options' => self::_getSectionLinkVals(NULL, $this->get('id'))) : NULL;
+				$opt_templates .= Textgroup::make_template(true, $type, $opts);
+			} 
+
+			// Editor wrapper
+			$fieldset = new XMLElement('fieldset');
+			$label = Widget::Label(__('Field Editor'));
+			$field_wrapper = new XMLElement('div', $opt_templates, array(
+				'class' => 'frame dynamictextgroup'
+			));
+
+			// constructable elements list
+			$field_list = new XMLElement('ol');
+
+			$field_wrapper->appendChild($field_list);
+			$fieldset->appendChild($label);
+			$fieldset->appendChild($field_wrapper);
+
+			// hidden settings fields
+			$hidden_fields = Array();
+			$hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', $this->get('schema')), 'hidden', array('class' => 'schema'));
+			$hidden_fields[] = Widget::Input('fields['. $sortorder . '][addfields]', NULL, 'hidden', array('class' => 'addfields'));
+			$hidden_fields[] = Widget::Input('fields['. $sortorder . '][delfields]', NULL, 'hidden', array('class' => 'delfields'));
+			$hidden_fields[] = Widget::Input('fields['. $sortorder . '][renfields]', NULL, 'hidden', array('class' => 'renfields'));
+
+
+			$field_wrapper->appendChildArray($hidden_fields);
+			$schema = $this->get('schema');
+
+			$fields = array();
+
+			// create settings fields from json schema
+			if (isset($schema)) {
+				foreach (json_decode($schema, true) as $s) {
+					$type = $s['options']['type'];
+
+					if ($type == 'select') {
+						$s['options']['dynamic_options'] = self::_getSectionLinkVals(isset($s['options']['dynamic_values']) ? $s['options']['dynamic_values'] : NULL , $this->get('id'));
+					} 
+
+					if (isset($s['options']['group_name'])) {
+						$s['options']['add_group_field'] = (intVal($this->get('allow_new_items')) == 1) ? false : true;
+					} 
+
+					$opt_template = Textgroup::make_template(false, $type, $s['options']);
+
+					$s['options']['dynamic_options'] = NULL;
+					unset($s['options']['dynamic_options']); 
+
+					$fields[] = self::_createSettinsFields($s['label'], $s, $this->get('element_name'), 'instance', $opt_template);
+				}
+			}
+			$fields[] = self::_createSettinsFields($s['label'], NULL, $this->get('element_name'), 'template', Textgroup::make_template(false, 'text'));
+			$field_list->appendChildArray($fields);
+
+			return $fieldset;
+		}
 	
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displaySettingsPanel * * */
@@ -160,65 +234,11 @@
 			$sortorder = $this->get('sortorder');
 
 			
-			// Field Editor
-			if ($this->get('id')) {
-				// Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/jquery-ui-1.8.16.custom.min.js', 101, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/json2.js', 102, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/jquery.ui.resizable.js', 103, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.js', 104, false);
-				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.css', 'screen', 105, false);
-				
-				$opt_templates = '';
+			// Field Editor 
+			$editor = $this->_createFieldEditor();
 
-				foreach(explode(' ', Textgroup::getFieldTypes()) as $type) {
-					//$fn = 'tpl_options_' . $key;
-					$opts = $type === 'select' ? array('dynamic_values' => self::_getSectionLinkVals(NULL, $this->get('id'))) : NULL;
-					$opt_templates .= Textgroup::make_template(true, $type, $opts);
-				} 
-
-				$fieldset = new XMLElement('fieldset');
-				$label = Widget::Label(__('Field Editor'));
-				$field_wrapper = new XMLElement('div', $opt_templates, array(
-					'class' => 'frame dynamictextgroup'
-				));
-				$field_list = new XMLElement('ol');
-
-				$field_wrapper->appendChild($field_list);
-				$fieldset->appendChild($label);
-				$fieldset->appendChild($field_wrapper);
-
-				$hidden_fields = Array();
-				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', $this->get('schema')), 'hidden', array('class' => 'schema'));
-				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][addfields]', NULL, 'hidden', array('class' => 'addfields'));
-				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][delfields]', NULL, 'hidden', array('class' => 'delfields'));
-				$hidden_fields[] = Widget::Input('fields['. $sortorder . '][renfields]', NULL, 'hidden', array('class' => 'renfields'));
-
-				//$hidden_fields[] = Widget::Input('fields['. $sortorder . '][fieldcount]', $this->get('fieldcount'), 'hidden');
-
-				$field_wrapper->appendChildArray($hidden_fields);
-				$schema = $this->get('schema');
-
-				//print_r($this->get('id'));
-				$fields = array();
-				if (isset($schema)) {
-					foreach (json_decode($schema, true) as $s) {
-						$type = $s['options']['type'];
-
-						if (isset($s['options']['dynamic_values'])) {
-							$s['options']['dynamic_values']	= self::_getSectionLinkVals($s['options']['dynamic_values'], $this->get('id'));
-						} 
-
-						if (isset($s['options']['group_name'])) {
-							$s['options']['add_group_field'] = (intVal($this->get('allow_new_items')) == 1) ? false : true;
-						} 
-
-						$opt_template = Textgroup::make_template(false, $type, $s['options']);
-						$fields[] = self::_createSettinsFields($s['label'], $s, $this->get('element_name'), 'instance', $opt_template);
-					}
-				}
-				$fields[] = self::_createSettinsFields($s['label'], NULL, $this->get('element_name'), 'template', Textgroup::make_template(false, 'text'));
-				$field_list->appendChildArray($fields);
-				$wrapper->appendChild($fieldset);
+			if ($editor) {
+				$wrapper->appendChild($editor);
 			} else {
 				$fieldset = new XMLElement('fieldset', '<label>' . __('Field Editor') . '</label>' . __('Please save the section to enable the Field Editor') . '<br /><br />');
 				$wrapper->appendChild($fieldset);
@@ -271,7 +291,17 @@
 			$wrapper->appendChild($label);
 		}
 
-
+		/**
+		 * Creates a constructable field editor field
+		 *
+		 * @param $handle		String		label name
+		 * @param $options		Array		options array to be converted to json string
+		 * @param $name			String		html5-data-name and html5-data-type
+		 * @param $class		String		provides basic css class
+		 * @param $opt_content	String		optional markup to be appended to the fieldsettingbox
+		 *
+		 * @return  XMLElement
+		 */ 
 		private static function _createSettinsFields($handle=NULL, $options=NULL, $name=NULL, $class=NULL, $opt_content=NULL) {
 
 			$header = new XMLElement('div', NULL, array('class' => 'content'));
@@ -402,9 +432,15 @@
 			}
 		}
 		
+		/**
+		 * create select options for select fields on the publish panel
+		 */ 	
 		private function _makePublishSelectOptions($data = NULL, stdClass $field) {
 
+
 			if ($field->options->type !== 'select') return;
+
+			$selected = explode(',', $data);
 
 			$states = self::_getToggleStates($field->options->dynamic_values, $field->options->static_values);
 
@@ -414,7 +450,7 @@
 			$options = array();
 
 			foreach($states as $handle => $v){
-				$options[] = array(General::sanitize($v), ($v == $data), General::sanitize($v));
+				$options[] = array(General::sanitize($v), in_array($v, $selected), General::sanitize($v));
 			}
 
 			$select_opts[] = array('label' => $field->label, 'options' => $options);
@@ -425,13 +461,6 @@
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displayPublishPanel * * */
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL) {
-	
-			// Append assets
-			//Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/lib/stage/stage.publish.js', 101, false);
-			//Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/lib/stage/stage.publish.css', 'screen', 102, false);
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 103, false);
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 104, false);
-			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 105, false);
 			
 			// Get settings
 			$settings = array();
@@ -479,13 +508,11 @@
 			}
 			
 			// Create stage
-			//$stage = Stage::create('dynamictextgroup', $this->get('id'), implode($settings, ' '), $content);
 			$stage = new XMLElement('div', NULL, array('class' => 'dtg-stage' . ($sortable ? ' orderable' : '')));
 			$stageInner = new XMLElement('ol');
 			
 			$stage->appendChild($stageInner);
 			$stageInner->appendChildArray($content);
-			//$stageInner->appendChild($template);
 			
 			// Field label
 			$holder = new XMLElement('div');
@@ -635,6 +662,10 @@
 					if (!empty($field[$i])) {
 						$empty = false;	
 						$emptyEntry = false;	
+						// care for multiple select controls
+						if (is_array($field[$i])) {
+							$field[$i] = implode(',', $field[$i]);
+						}
 					} else {
 						$field[$i] = ' ';
 					}
@@ -645,6 +676,10 @@
 					}
 				}
 			}
+
+//			echo '<pre>';
+//			print_r($data);
+//			echo '</pre>';
 
 			if ($empty) {
 				return null;

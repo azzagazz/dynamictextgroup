@@ -33,6 +33,34 @@
 			}
 		}
 
+		public function getSubscribedDelegates() {
+			return array(
+				array(
+					'page' => '/backend/',
+					'delegate' => 'AdminPagePreGenerate',
+					'callback' => '_appendAssets'
+				),
+			);
+		}
+
+
+		public function _appendAssets($context) {	
+
+			$callback = Symphony::Engine()->getPageCallback();
+			// Append styles for publish area
+			if ($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
+				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 103, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 104, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 105, false);
+			}
+
+			// Append styles for section area
+			if($callback['driver'] == 'blueprintssections' && is_array($callback['context'])) {
+				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.css', 'screen', 103, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/json2.js', 104, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.js', 105, false);
+			}
+		}
 
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#uninstall * * */
 		public function uninstall() {

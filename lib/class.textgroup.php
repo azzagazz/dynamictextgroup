@@ -61,8 +61,8 @@
 			$label = $schema->label; 
 			$options = $schema->options->selectOptions; 
 
-			$fieldname = 'fields['. $element .']['. $handle .'][]';
-			$fielname .= $schema->options->allow_multiple ? '[]' : '';
+			$fieldname = 'fields['. $element .']['. $handle .']';
+			$fieldname .= $schema->options->allow_multiple ? '[{{multiple}}][]' : '[]';
 
 			$field = Widget::Select($fieldname, $options);
 			if ($schema->options->allow_multiple) {
@@ -161,7 +161,7 @@
 		public static function _tpl_options_select($wrap = false, $options = NULL) {
 			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
 			$checked = (is_array($options) && isset($options['allow_multiple'])) ? ' checked' : '';
-			$dynamic_values =  (is_array($options) && isset($options['dynamic_values'])) ? $options['dynamic_values'] : NULL;
+			$dynamic_values = (is_array($options) && isset($options['dynamic_options'])) ? $options['dynamic_options'] : NULL;
 
 			$fields	 = self::_makeTypeOptions('select');
 			$fields .= '<fieldset><div class="two columns"><div class="column"><label>' . __('Predefined Values') . '<i>' . __('Optional') . '</i>';

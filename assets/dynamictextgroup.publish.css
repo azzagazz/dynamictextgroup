@@ -10,6 +10,9 @@
 .field-dynamictextgroup .instance {
 	padding-bottom: 12px;
 }
+.field-dynamictextgroup ol {
+	margin-left: 0;
+}
 .field-dynamictextgroup .content .draw-handle {
 	width: 12px;
 	height: 12px;
@@ -209,8 +212,13 @@
 	/*border-left: 1px solid #ccc;*/
 }
 .dbox:first-child {
-	padding: 0 6px;
+
+	/*padding: 0 6px;*/
+	padding-left: 0;
 	border: none;
+}
+.dbox:last-child {
+	padding-right: 0;
 }
 .dtg-text.dbox, .dtg-select.dbox {
 	-webkit-box-flex: 2;
