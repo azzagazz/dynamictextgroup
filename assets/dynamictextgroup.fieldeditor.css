@@ -29,6 +29,7 @@
 .options-box fieldset {
 	border: none;
 	border-bottom: 1px solid #333;
+	border-top: none !important;
 }
 .options-box label, .options-box a {
 	color: #fff;
@@ -38,9 +39,6 @@
 	color: #666;
 }
 a.destructor {
-	position: absolute;
-	right: 12px;
-	top: 12px;
 	
 }
 .field-holder {
@@ -73,9 +71,23 @@ li.field-holder.invalid > .content {
 	background: #EB6347 !important;
 }
 .field-holder .content {
+	width: auto !important;
+	position: static;
 	padding-left: 22px !important;
 	padding-right: 80px !important;
 }
+.field-holder a.destructor {
+	position: absolute;
+	right: 12px;
+	top: 14px;
+	color: #AEAEAE;	
+	border-bottom: none;
+}
+.field-holder a.destructor:hover {
+	color: #3D3D3D;	
+	border-bottom: none;
+}
+
 .frame {
 	overflow: visible;
 }
@@ -369,4 +381,8 @@ li.field-holder.invalid > .content {
 .msgbad {
 	background:#d43;
 	color:#fff;
+}
+
+.field-holder .content {
+	padding-bottom: 12px !important;
 }
