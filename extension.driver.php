@@ -16,6 +16,8 @@
 					`id` int(11) unsigned NOT NULL auto_increment,
 					`field_id` int(11) unsigned NOT NULL,
 					`fieldcount` tinyint(1),
+					`allow_new_items` tinyint(1),
+					`allow_sorting_items` tinyint(1),
 					`schema` text,
         	  		PRIMARY KEY  (`id`),
 			  		KEY `field_id` (`field_id`)
@@ -35,12 +37,20 @@
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#uninstall * * */
 		public function uninstall() {
 		
-			// Drop related entries from stage tables
-			Symphony::Database()->query("DELETE FROM `tbl_fields_stage` WHERE `context` = 'dynamictextgroup'");
-			Symphony::Database()->query("DELETE FROM `tbl_fields_stage_sorting` WHERE `context` = 'dynamictextgroup'");
-
 			// Drop date and time table
 			Symphony::Database()->query("DROP TABLE `tbl_fields_dynamictextgroup`");
+		}
+
+		/**
+		 * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#update
+		 */
+		public function update($previousVersion) {
+			$previousVersion = preg_replace('/\w+\s?$/i', '', $previousVersion);
+
+			if (version_compare($previousVersion, '2.1.1', '<')) {
+				Symphony::Database()->query("ALTER TABLE `tbl_fields_dynamictextgroup` ADD COLUMN `allow_new_items` tinyint(1)");
+				Symphony::Database()->query("ALTER TABLE `tbl_fields_dynamictextgroup` ADD COLUMN `allow_sorting_items` tinyint(1)");
+			}
 		}
 
 	}
