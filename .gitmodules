@@ -1,0 +1,3 @@
+[submodule "assets/flexie"]
+	path = assets/flexie
+	url = git://github.com/doctyper/flexie.git
