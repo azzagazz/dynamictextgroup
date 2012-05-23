@@ -33,7 +33,7 @@
 			// Create element
 			return new XMLElement(
 				'li', 
-				'<div class="content flexgroup">' . $draw_handle . $fields . '</div>',
+				'<div class="content">' . $draw_handle . '<div class="flexgroup">' . $fields . ' </div></div>',
 				array(
 					'class' => implode($classes, ' '),
 					'data-name' => 'dynamictextgroup item',
@@ -78,12 +78,15 @@
 			$handle = $schema->handle; 
 			$label = $schema->label; 
 
+			$val = $val === 'yes' ? 'yes' : 'no';
+
 			$f_label = '<label>';
-			$field = Widget::Input('fields['. $element .']['. $handle .'][]', $val, 'checkbox');
+			$field = Widget::Input('fields['. $element .']['. $handle .'][]', $val, 'hidden');
+			$chk = Widget::Input('dtg-checkbox', NULL, 'checkbox');
 			if ($val == 'yes') {
-				$field->setAttribute('checked', 'checked');
+				$chk->setAttribute('checked', 'checked');
 			}
-			$f_label .= $field->generate() . $label .'</label>';
+			$f_label .= $field->generate() . $chk->generate() . $label .'</label>';
 			$div = new XMLElement('div', $f_label, array('class' => 'dtg-checkbox dbox'));
 			return $div->generate();
 		}

@@ -13,11 +13,18 @@
 			_replaceMultiplyName($(this));
 		});
 	}
+
+	function _buttonLabel(select) {
+		return select.find('optgroup').get(0).label;
+	}
 	// Stage stuff
 	$(document).ready(function () {
 
-
-		_initMultipleSelectControls('.field-dynamictextgroup select[multiple]');
+		var instances = $('.field-dynamictextgroup li:visible select[multiple]');
+		instances.multiselect({
+			buttonText: _buttonLabel
+		});
+		_initMultipleSelectControls(instances);
 
 		$('.field-dynamictextgroup .frame').each(function () {
 			var field = $(this);
@@ -29,8 +36,12 @@
 				//orderable: field.hasClass('sortable')
 			});
 
-			field.on('constructstop.duplicator', function () {
-				_initMultipleSelectControls($(this).find('select[multiple'));
+			field.on('constructshow.duplicator', function (event, element) {
+				var target = $(event.target).find('select[multiple]');
+				target.multiselect({
+					buttonText: _buttonLabel
+				});
+				_initMultipleSelectControls(target);
 			});
 		});
 
@@ -41,12 +52,12 @@
 			selection = stage.find('ul.selection');
 
 			manager.on('change', 'input[type=checkbox]', function (e) {
-				var input = event.target;
-
-				if (input.checked) {
-					input.value = 'yes';
+				var input = $(event.target),
+				hidden = input.siblings().filter('input[type=hidden]');
+				if (input[0].checked) {
+					hidden[0].value = 'yes';
 				} else {
-					input.value = 'no';
+					hidden[0].value = 'no';
 				}
 			}).on('change', 'input[type=radio]', function (e) {
 				var input = event.target,

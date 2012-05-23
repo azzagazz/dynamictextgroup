@@ -25,7 +25,7 @@
 	cursor: move;
 }
 .field-dynamictextgroup div.frame .content {
-	overflow: hidden;
+	/*overflow: hidden;*/
 	position: relative;
 	width: auto !important;
 	padding-right: 90px;
@@ -46,6 +46,7 @@
 	font-weight: normal;
 	margin: 0;	
 }
+/*
 .field-dynamictextgroup div.frame span {
 	padding: 3px 42px 4px 16px;
 	display: block;
@@ -53,9 +54,8 @@
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
-	}
-
-
+}
+*/
 .field-dynamictextgroup div.frame span.fields {
 	background:none !important;
 	padding: 0px;
@@ -220,23 +220,13 @@
 .dbox:last-child {
 	padding-right: 0;
 }
-.dtg-text.dbox, .dtg-select.dbox {
-	-webkit-box-flex: 2;
-	-moz-box-flex: 2;
-	box-flex: 2;
-}	
-.dtg-checkbox.dbox,
-.dtg-radio.dbox {
-	-webkit-box-flex: 1;
-	-moz-box-flex: 1;
-	box-flex: 1;
-}	
 .dtg-checkbox.dbox label, 
 .dtg-radio.dbox label {
 	/*top: 20px;*/
 	margin-bottom: 0;
 }	
-.content.flexgroup {
+.content .flexgroup {
+	width: 100%;
 	display: -webkit-box;
 	display: -moz-box;
 	display: box;
@@ -255,4 +245,143 @@
 	box-align: center;
 	box-pack: justify;
 	box-ordinal-group: 1;
+}
+.dtg-text.dbox, .dtg-select.dbox {
+	-webkit-box-flex: 2;
+	-moz-box-flex: 2;
+	box-flex: 2;
+}	
+.dtg-checkbox.dbox,
+.dtg-radio.dbox {
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+}	
+
+.ui-multiselect-checkboxes label {
+	margin-bottom: 0;
+}
+.dgt-multiselect.dgt-select-ref {
+	display: none;
+	position: absolute;
+}
+.dgt-multiselect.dgt-multiselect-listbody.hidden {
+	display: none;
+}
+
+.dgt-multiselect.dgt-multiselect-list ul {
+	padding: 0;
+	margin: 0;
+}
+.dgt-multiselect.dgt-multiselect-list {
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+	/*margin: 6px;*/
+}
+.dgt-multiselect.dgt-multiselect-list .option {
+	padding: 4px 6px;
+}
+.dgt-multiselect.dgt-multiselect-container {
+	padding: 0;
+	position: relative;
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	display: block;	
+}
+.dgt-multiselect .select-control {
+	display: none;
+}
+.dgt-multiselect-listbody {
+	background: whiteSmoke;
+	position: absolute;
+	z-index: 1000;
+	top: 11px;
+	left: 0;
+	padding: 34px 0 0 0;
+	margin: 0;
+	width: 100%;
+	overflow: hidden;
+
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+
+	-webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+	-o-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+
+}
+.dgt-multiselect-scroll {
+	border-top: 1px solid #ccc;
+	overflow: hidden;
+	overflow-y: auto;
+	height: auto;
+	max-height: 200px;
+}
+.dgt-multiselect button .label {
+	display: block;
+}
+.dgt-multiselect button {
+	text-align: left !important;
+	width: 100%;
+	display: block;	
+}
+
+.frame {
+	overflow: visible;
+}
+.frame:before, .frame:after { 
+	content: ""; display: table; 
+}
+.frame:after { 
+	clear: both; 
+}
+.option {
+	cursor: pointer;
+}
+.option:nth-child(even) {
+	background: whiteSmoke;
+}
+.option:nth-child(odd) {
+	background: #fefefe;
+}
+.option:nth-child(even).selected {
+	background: #668ABE;
+}
+.option:nth-child(odd).selected {
+	background: #7492BC;
+}
+.open button .toggle {
+	background: url(images/dropdown-close.png) no-repeat center top;
+}
+button .toggle {
+	background: url(images/select-arrows.png) no-repeat center center;
+	position: absolute;
+	right: 12px;
+	top: 6px;
+	height: 11px;
+	width: 11px;
+}
+li.label {
+	padding: 6px;
+	color: #666;
+	background: #f0f0f0;
+	border-bottom: 1px solid #fff;
+}
+.toolbar {
+	display: block;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-bottom: 1px solid #fff;
+	background: whiteSmoke;
+	height: 33px;
+}
+.toolbar a {
+	padding: 6px;
+	border-bottom: none;
 }

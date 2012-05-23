@@ -50,8 +50,9 @@
 			// Append styles for publish area
 			if ($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
 				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 103, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 104, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 105, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 106, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.multiselect.js', 108, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 109, false);
 			}
 
 			// Append styles for section area
