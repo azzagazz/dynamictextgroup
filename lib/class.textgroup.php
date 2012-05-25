@@ -2,13 +2,14 @@
 
 	class Textgroup {
 		
-		const field_types = 'text select radio checkbox';
+		const field_types = 'text select radio checkbox date';
 
 		private static $field_types_map = array(
 			'text'		=> 'textfield',
 			'select'	=> 'selectbox',
 			'radio'		=> 'radio button',
 			'checkbox'	=> 'checkbox',
+			'date'		=> 'date'
 		);
 
 		public static function createNewTextGroup($element, $fieldCount=2, $values=NULL, $class=NULL, $schema=NULL, $sortable = false) {
@@ -42,7 +43,10 @@
 			);
 		}
 		
-		// Generate text field
+		/**
+		 * Generate text field
+		 * @author Thomas Appel <mail@thomas-appel.com>
+		 */
 		private static function __createTextField($element, $textvalue, stdClass $schema) {
 			$handle = $schema->handle; 
 			$label = $schema->label; 
@@ -51,6 +55,17 @@
 			$field = Widget::Input('fields['. $element .']['. $handle .'][]', $textvalue, 'text', array('placeholder' => $label));
 			$div = new XMLElement('div', NULL, array('class' => 'dtg-text dbox'));
 			//$f_label->appendChild($field);
+			$div->appendChild($field);
+			return $div->generate();
+		}
+
+		private static function __createDateField($element, $textvalue, stdClass $schema) {
+			$handle = $schema->handle; 
+			$label = $schema->label; 
+			$required = $schema->options->required; 
+			//$f_label = Widget::Label($label);
+			$field = Widget::Input('fields['. $element .']['. $handle .'][]', $textvalue, 'text', array('placeholder' =>$label));
+			$div = new XMLElement('div', NULL, array('class' => 'dtg-date dbox'));
 			$div->appendChild($field);
 			return $div->generate();
 		}
@@ -142,6 +157,8 @@
 
 		/**
 		 *  settings template for radio field 
+		 *
+		 * @author Thomas Appel <mail@thomas-appel.com>
 		 */
 		public static function _tpl_options_radio($wrap = false, $options = NULL) {
 			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
@@ -160,6 +177,8 @@
 		
 		/** 
 		 * settings template select field 
+		 *
+		 * @author Thomas Appel <mail@thomas-appel.com>
 		 */
 		public static function _tpl_options_select($wrap = false, $options = NULL) {
 			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
@@ -182,6 +201,8 @@
 
 		/** 
 		 * settings template for text field 
+		 *
+		 * @author Thomas Appel <mail@thomas-appel.com>
 		 */
 		public static function _tpl_options_text($wrap = false, $options = NULL) {
 			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
@@ -199,9 +220,22 @@
 			}
 			return $fields;
 		}
+		public static function _tpl_options_date($wrap = false, $options = NULL) {
+			$required = (is_array($options) && isset($options['required'])) ? $options['required'] : false;
+			$fields = self::_makeTypeOptions('date');
+			$fields .= '<fieldset>';
+			$fields .= self::_appendRequiredCheckbox($required);
+			$fields .= '</fieldset>';
+			if ($wrap) {
+				$fields = self::_wrapInScriptTag('date', $fields);
+			}
+			return $fields;
+		}
 
 		/**
-		 *  settings template for checkbox field 
+		 * settings template for checkbox field 
+		 *
+		 * @author Thomas Appel <mail@thomas-appel.com>
 		 */
 		public static function _tpl_options_checkbox($wrap = false) {
 			$fields = self::_makeTypeOptions('checkbox');

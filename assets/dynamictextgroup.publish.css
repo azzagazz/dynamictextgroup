@@ -246,7 +246,7 @@
 	box-pack: justify;
 	box-ordinal-group: 1;
 }
-.dtg-text.dbox, .dtg-select.dbox {
+.dtg-text.dbox, .dtg-select.dbox, .dtg-date.dbox{
 	-webkit-box-flex: 2;
 	-moz-box-flex: 2;
 	box-flex: 2;
@@ -371,7 +371,7 @@ li.label {
 	background: #f0f0f0;
 	border-bottom: 1px solid #fff;
 }
-.toolbar {
+.dgt-multiselect .toolbar {
 	display: block;
 	width: 100%;
 	position: absolute;
@@ -381,7 +381,7 @@ li.label {
 	background: whiteSmoke;
 	height: 33px;
 }
-.toolbar a {
+.dgt-multiselect .toolbar a {
 	padding: 6px;
 	border-bottom: none;
 }

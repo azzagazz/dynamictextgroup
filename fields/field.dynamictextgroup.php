@@ -3,10 +3,11 @@
 	/* * * 	@package dynamictextgroup 																				* * */
 	/* * * 	This field provides a method to dynamically add a text field or text field groups to a section entry 	* * */
 	
-	if(!defined('__IN_SYMPHONY__')) die('<h2>Symphony Error</h2><p>You cannot directly access this file</p>');
+	if(!defined('__IN_SYMPHONY__')) die('You cannot directly access this file');
 
+	require_once(TOOLKIT . '/fields/field.date.php');
 	require_once(EXTENSIONS . '/dynamictextgroup/lib/class.textgroup.php');
-	//require_once(TOOLKIT . '/fields/field.select.php');
+	require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/fb.php');
 
 	Class fielddynamictextgroup extends Field {
 
@@ -153,6 +154,7 @@
 		/**
 		 * create the fieldeditor fieldset on settings panel
 		 *
+		 * @author Thomas Appel <mail@thomas-appel.com>
 		 * @return Mixed Boolean false or XMLElement
 		 */
 		private function _createFieldEditor() {
@@ -293,6 +295,7 @@
 
 		/**
 		 * Creates a constructable field editor field
+		 * @author Thomas Appel <mail@thomas-appel.com>
 		 *
 		 * @param $handle		String		label name
 		 * @param $options		Array		options array to be converted to json string
@@ -325,7 +328,9 @@
 		}
 		
 	
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkFields * * */
+		/**
+		 * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkFields 
+		 */
 		public function checkFields(&$errors, $checkForDuplicates=true) {
 			parent::checkFields($errors, $checkForDuplicates);
 		}
@@ -402,13 +407,13 @@
 
 			}
 
-			//self::saveSettings($this->get('id'), $keys, 'dynamictextgroup');
-
 			Symphony::Database()->query("DELETE FROM `tbl_fields_" . $this->handle() . "` WHERE `field_id` = '$id' LIMIT 1");
 			return Symphony::Database()->insert($fields, 'tbl_fields_' . $this->handle());
 		}	
 
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#commit * * */
+		/**
+		 * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#commit 
+		 */
 		function __alterTable($mode, $col, $rename=NULL) {
 			// Function $mode options:
 			// 0 = Delete column; 	e.g.  __alterTable(0, 'badcolumn');
@@ -434,6 +439,11 @@
 		
 		/**
 		 * create select options for select fields on the publish panel
+		 *
+		 * @param		$data		String
+		 * @param		$field		Object
+		 *
+		 * @return		void
 		 */ 	
 		private function _makePublishSelectOptions($data = NULL, stdClass $field) {
 
@@ -459,7 +469,9 @@
 			unset($select_opts);
 		}	
 	
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displayPublishPanel * * */
+		/** 
+		 * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displayPublishPanel
+		 */
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL) {
 			
 			// Get settings
@@ -537,7 +549,9 @@
 		}
 		
 		
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkPostFieldData * * */
+		/**
+		 * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkPostFieldData 
+		 */
 		public function checkPostFieldData($data, &$message, $entry_id=NULL){
 			$message = __("'%s' is a required field.", array($this->get('label')));
 			
@@ -549,8 +563,9 @@
 			$empty = true;
 			
 			$badValidate = false;
-			$badRadio = false;
-			$badCheck = false;
+			$badDate = array();
+			$badRadio = array();
+			$badCheck = array();
 			
 			$checkItems = array();
 			$radioItems = array();
@@ -561,13 +576,25 @@
 				foreach ($schema as $f=>$field) {
 					// Get/set required option
 					$req = $field->options->required ? true : false;
-					
 					switch ($field->options->type) {
 						case 'text':
 							// Check if field passes any rules
 							$rule = $field->options->validationRule != '' ? $field->options->validationRule : false;
 							if ($rule && !General::validateString($data[$field->handle][$i], $rule)){
 								$badValidate[] = array('handle' => $field->handle.'-holder', 'index' => $i);
+							}
+							// Check if required subfield is empty
+							if ($req && $data[$field->handle][$i] == '') {
+								$emptyReq = true;
+							} else if ($data[$field->handle][$i] != '') {
+								$empty = false;
+								$emptyRow = false;
+							}
+							break;
+						case 'date':
+							// Check if field passes any rules
+							if (fieldDate::parseFilter($data[$field->handle][$i]) == fieldDate::ERROR) {
+								$badDate[] = array('handle' => $field->handle.'-holder', 'index' => $i);
 							}
 							// Check if required subfield is empty
 							if ($req && $data[$field->handle][$i] == '') {
@@ -619,17 +646,22 @@
 				}
 			}
 			
-			if ($badValidate){
+			if (!empty($badValidate)) {
 				$badValidate = json_encode($badValidate);
 				$message = __("'%s' contains invalid data. Please check the contents.<input type='hidden' id='badItems' value='%s' />", array($this->get('label'), $badValidate));
 				return self::__INVALID_FIELDS__;
 			}
-			if ($badRadio) {
+			if (!empty($badDate)) {
+				$badDate = json_encode($badDate);
+				$message = __("'%s' contains invalid data. Please check the contents.<input type='hidden' id='badItems' value='%s' />", array($this->get('label'), $badDate));
+				return self::__INVALID_FIELDS__;
+			}
+			if (!empty($badRadio)) {
 				$badRadio = json_encode($badRadio);
 				$message = __("'%s' contains required fields that are empty. <input type='hidden' id='badItems' value='%s' />", array($this->get('label'), $badRadio));
 				return self::__MISSING_FIELDS__;
 			}
-			if ($badCheck) {
+			if (!empty($badCheck)) {
 				$badCheck = json_encode($badCheck);
 				$message = __("'%s' contains required fields that are empty. <input type='hidden' id='badItems' value='%s' />", array($this->get('label'), $badCheck));
 				return self::__MISSING_FIELDS__;
@@ -641,7 +673,9 @@
 		}
 		
 		
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#processRawFieldData * * */
+		/** 
+		 * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#processRawFieldData 
+		 */
 		function processRawFieldData($data, &$status, $simulate=false, $entry_id=NULL) {
 			$status = self::__OK__;
 			if(!is_array($data)) return NULL;
@@ -676,10 +710,6 @@
 					}
 				}
 			}
-
-//			echo '<pre>';
-//			print_r($data);
-//			echo '</pre>';
 
 			if ($empty) {
 				return null;
@@ -720,13 +750,6 @@
 			}
 			return $strung;
 		}
-	
-	
-		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#buildSortingSQL * * */
-		/*
-		function buildSortingSQL(&$joins, &$where, &$sort, $order='ASC') {
-		}
-		*/
 	
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#buildDSRetrivalSQL * * */
@@ -771,6 +794,7 @@
 	
 		/* * * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#appendFormattedElement * * */
 		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null, $entry_id) {
+
 			// Get field properties and decode schema
 			$fieldCount = $this->get('fieldcount');
 			$schema = json_decode($this->get('schema'));
@@ -786,8 +810,27 @@
 				$item = new XMLElement('item');
 				$empty = true;
 				foreach ($schema as $field) {
-					$val = $data[$field->handle][$i] != ' ' ? General::sanitize($data[$field->handle][$i]) : '';
-					$item->appendChild(new XMLElement($field->handle, $val));
+
+					$f = new XMLElement($field->handle);
+					// is select box and can have multiple items
+					if ($field->options->type == 'select' && $field->options->allow_multiple) {
+						$val = array();
+						$pieces = explode(',', $data[$field->handle][$i]);
+						foreach ($pieces as $bit) {
+							$val[] = new XMLElement('item', General::sanitize($bit));
+						}
+						$f->setAttribute('items', sizeof($val));
+						$f->appendChildArray($val);
+					// is datefield
+					} elseif ($field->options->type == 'date') {
+						$f->setAttribute('time', NULL);	
+						$f->setAttribute('weekday', NULL);
+						$f = General::createXMLDateObject($data[$field->handle][$i], $field->handle);
+					} else {
+						$val = $data[$field->handle][$i] != ' ' ? General::sanitize($data[$field->handle][$i]) : '';
+						$f->setValue($val);
+					}
+					$item->appendChild($f);
 				}
 				$textgroup->appendChild($item);
 			}

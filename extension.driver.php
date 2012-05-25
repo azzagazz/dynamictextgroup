@@ -3,6 +3,7 @@
 	/* * * 	@package dynamictextgroup 	* * */
 	/* * * 	Dynamic Text Group 			* * */
 	
+	//require_once(EXTENSIONS . '/filemanager/lib/FirePHPCore/fb.php');
 	Class extension_dynamictextgroup extends Extension {
 		
 		
@@ -43,23 +44,40 @@
 			);
 		}
 
+		public static function hasInstance($ext_name=NULL, $section_handle = NULL, $sid = NULL) {
+			$sid  = $sid ? $sid : SectionManager::fetchIDFromHandle($section_handle);
+			$section = SectionManager::fetch($sid);
+			
+			if ($section instanceof Section) {
+				$fm = $section->fetchFields($ext_name);
+				return is_array($fm) && !empty($fm);
+			}
+
+			return false;
+		}		
 
 		public function _appendAssets($context) {	
 
 			$callback = Symphony::Engine()->getPageCallback();
+
 			// Append styles for publish area
 			if ($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
-				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 103, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 106, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.multiselect.js', 108, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 109, false);
+
+				if (self::hasInstance('dynamictextgroup', $callback['context']['section_handle'])) {
+					Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.css', 'screen', 103, false);
+					Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/flexie.min.js', 106, false);
+					Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.multiselect.js', 108, false);
+					Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.publish.js', 109, false);
+				}
 			}
 
 			// Append styles for section area
 			if($callback['driver'] == 'blueprintssections' && is_array($callback['context'])) {
-				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.css', 'screen', 103, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/json2.js', 104, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.js', 105, false);
+				if (self::hasInstance('dynamictextgroup', NULL, isset($callback['context'][1])? $callback['context'][1] : NULL)) {
+					Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.css', 'screen', 103, false);
+					Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/json2.js', 104, false);
+					Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.js', 105, false);
+				}
 			}
 		}
 
