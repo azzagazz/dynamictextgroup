@@ -322,9 +322,9 @@ class fielddynamictextgroup extends Field
         $fieldset->appendChild(Widget::Label(__('Options')));
         $two_columns = new XMLElement('div', NULL, array('class' => 'two columns'));
 
-        self::appendCheckbox($two_columns, 'allow_new_items', __('Allow creating new items'));
+        $this->appendCheckbox($two_columns, 'allow_new_items', __('Allow creating new items'));
         if ($this->get('allow_new_items')) {
-            self::appendCheckbox($two_columns, 'allow_sorting_items', __('Allow sorting items'));
+            $this->appendCheckbox($two_columns, 'allow_sorting_items', __('Allow sorting items'));
         }
 
         $fieldset->appendChild($two_columns);
@@ -349,7 +349,7 @@ class fielddynamictextgroup extends Field
      * @access public
      * @return void
      */
-    public static function appendCheckbox(XMLElement &$wrapper, $fname = NULL, $value= NULL)
+    public function appendCheckbox(XMLElement &$wrapper, $fname = NULL, $value= NULL)
     {
 
         $order = $this->get('sortorder');
