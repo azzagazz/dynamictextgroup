@@ -807,7 +807,7 @@ class fielddynamictextgroup extends Field
 
         if ($empty && $this->get('required') == 'yes') return self::__MISSING_FIELDS__;
 
-        return self::__MISSING_FIELDS__;
+        return self::__OK__;
     }
 
 
@@ -872,6 +872,8 @@ class fielddynamictextgroup extends Field
             "CREATE TABLE IF NOT EXISTS `tbl_entries_data_" . $this->get('id') . "` (
             `id` int(11) unsigned NOT NULL auto_increment,
             `entry_id` int(11) unsigned NOT NULL,
+            `handle` VARCHAR(255) default NULL,
+            `value` VARCHAR(255) default NULL,
             PRIMARY KEY (`id`),
             KEY `entry_id` (`entry_id`)
             );"
@@ -904,6 +906,9 @@ class fielddynamictextgroup extends Field
     }
 
 
+    public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false) {
+        return $this->buildDSRetrievalSQL($data, $joins, $where, $andOperation);
+    }
     /**
      * buildDSRetrivalSQL
      *
@@ -913,7 +918,7 @@ class fielddynamictextgroup extends Field
      *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#buildDSRetrivalSQL
      */
-    public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false)
+    public function buildDSRetrievalSQL($data, &$joins, &$where, $andOperation = false)
     {
         $field_id = $this->get('id');
 
