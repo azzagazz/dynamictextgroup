@@ -475,7 +475,7 @@ class fielddynamictextgroup extends Field
 
             foreach($fields_added as $handle => $value) {
                 $value = trim($value);
-                if (strlen($value) > 0) self::alterTable(1, Lang::createHandle($value), NULL, $id);
+                if (strlen($value) > 0) self::alterTable(1, Lang::createHandle($value), NULL);
             }
         }
 
@@ -484,7 +484,7 @@ class fielddynamictextgroup extends Field
 
         if (is_array($fields_deleted) && !empty($fields_deleted)) {
             foreach($fields_deleted as $handle) {
-                self::alterTable(0, $handle, NULL, $id);
+                self::alterTable(0, $handle, NULL);
             }
         }
 
@@ -495,7 +495,7 @@ class fielddynamictextgroup extends Field
 
             foreach($fields_renamed as $handle => $value) {
                 $value = trim($value);
-                if (strlen($value) > 0) self::alterTable(2, $handle, Lang::createHandle($value), $id);
+                if (strlen($value) > 0) self::alterTable(2, $handle, Lang::createHandle($value));
             }
         }
 
@@ -535,12 +535,14 @@ class fielddynamictextgroup extends Field
      * alterTable
      *
      */
-    protected static function alterTable($mode, $col, $rename=NULL, $id)
+    protected function alterTable($mode, $col, $rename=NULL)
     {
         // Function $mode options:
         // 0 = Delete column; 	e.g.  alterTable(0, 'badcolumn');
         // 1 = Add column; 		e.g.  alterTable(1, 'newcolumn');
         // 2 = Rename column;	e.g.  alterTable(2, 'newcolumnname', 'oldcolumnname');
+        $id = $this->get('id');
+
         switch ($mode) {
             case 0:
                 // Delete column
@@ -603,7 +605,7 @@ class fielddynamictextgroup extends Field
         // Get settings
         $settings = array();
 
-        $schema = json_decode($this->get('schema'));
+        $schema = $this->getFieldSchema();
         $fieldCount = $this->get('fieldcount');
 
         $sortable = $this->get('allow_sorting_items') ? true : false;
@@ -778,7 +780,7 @@ class fielddynamictextgroup extends Field
 
             if (!$emptyRow && $emptyReq) {
                 $message = __("'%s' contains required fields that are empty.", array($this->get('label')));
-                return self::__MISSING_FIELDS__;
+                return self::__OK__;
             }
         }
 
