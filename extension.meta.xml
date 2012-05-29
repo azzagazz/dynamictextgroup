@@ -12,6 +12,10 @@
 			<name github="brockpetrie" symphony="brockpetrie">Brock Petrie</name>
 			<website>http://www.brockpetrie.com</website>
 		</author>
+		<author>
+			<name github="iwyg" symphony="iwyg">Thomas Appel</name>
+			<website>http://thomas-appel.com</website>
+		</author>
 	</authors>
 	<dependencies>
 		<dependency>stage</dependency>

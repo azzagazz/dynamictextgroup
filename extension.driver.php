@@ -1,12 +1,18 @@
 <?php
 
-/* * * 	@package dynamictextgroup 	* * */
-/* * * 	Dynamic Text Group 			* * */
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
-//require_once(EXTENSIONS . '/filemanager/lib/FirePHPCore/fb.php');
+
+/**
+ * extension_dynamictextgroup 
+ * 
+ * @uses Extension
+ * @package DynamicTextgroup
+ * @author Brock Petrie <brockpetrie@gmail.com> 
+ * @author Thomas Appel <mail@thomas-appel.com> 
+ */
 class extension_dynamictextgroup extends Extension 
 {
-    
     
     /**
      * install 

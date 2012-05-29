@@ -1,4 +1,5 @@
 <?php
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 if(!defined('__IN_SYMPHONY__')) die('You cannot directly access this file');
 
@@ -6,20 +7,20 @@ require_once(TOOLKIT . '/fields/field.date.php');
 require_once(EXTENSIONS . '/dynamictextgroup/lib/class.textgroup.php');
 
 /**
- * fielddynamictextgroup 
- * This field provides a method to dynamically add a text field or text field groups to a section entry 
- * 
+ * fielddynamictextgroup
+ * This field provides a method to dynamically add a text field or text field groups to a section entry
+ *
  * @uses Field
- * @package DynamicTextGroup
+ * @package Fields
  * @version 3
- * @author Brock Petrie <brockpetrie@gmail.com> 
- * @author Thomas Appel <mail@thomas-appel.com> 
+ * @author Brock Petrie <brockpetrie@gmail.com>
+ * @author Thomas Appel <mail@thomas-appel.com>
  */
-class fielddynamictextgroup extends Field 
+class fielddynamictextgroup extends Field
 {
 
     /**
-     * the default settings for new dynamic fields  
+     * the default settings for a new dynamic field
      */
     private static $_dynamic_field_defaults = array(
         'handle'	=> 'field',
@@ -33,21 +34,20 @@ class fielddynamictextgroup extends Field
         )
     );
 
-
     /**
-     * canFilter 
-     * 
+     * canFilter
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#canFilter
      */
-    public function canFilter() 
+    public function canFilter()
     {
         return true;
     }
 
 
     /**
-     * isSortable 
-     * 
+     * isSortable
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#isSortable
      */
     public function isSortable()
@@ -56,19 +56,19 @@ class fielddynamictextgroup extends Field
     }
 
     /**
-     * canPrePopulate 
-     * 
+     * canPrePopulate
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#canPrePopulate
      */
-    public function canPrePopulate() 
+    public function canPrePopulate()
     {
         return false;
     }
 
 
     /**
-     * allowDatasourceOutputGrouping 
-     * 
+     * allowDatasourceOutputGrouping
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#allowDatasourceOutputGrouping
      */
     public function allowDatasourceOutputGrouping() {
@@ -77,8 +77,8 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * allowDatasourceParamOutput 
-     * 
+     * allowDatasourceParamOutput
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#allowDatasourceParamOutput
      */
     public function allowDatasourceParamOutput() {
@@ -90,19 +90,19 @@ class fielddynamictextgroup extends Field
      *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#__construct
      */
-    public function __construct() {	
+    public function __construct() {
         parent::__construct();
         $this->_name = __('Dynamic Text Group');
         $this->_required = true;
         $this->set('required', 'no');
     }
-    
-    
+
+
     /**
-     * _getSectionLinkVals 
-     * 
-     * @param mixed $selected 
-     * @param mixed $field_id 
+     * _getSectionLinkVals
+     *
+     * @param mixed $selected
+     * @param mixed $field_id
      * @static
      * @access private
      * @return void
@@ -132,10 +132,10 @@ class fielddynamictextgroup extends Field
     }
 
     /**
-     * _getToggleStates 
-     * 
-     * @param mixed $options 
-     * @param mixed $static 
+     * _getToggleStates
+     *
+     * @param mixed $options
+     * @param mixed $static
      * @static
      * @access private
      * @return void
@@ -163,10 +163,37 @@ class fielddynamictextgroup extends Field
     }
 
     /**
-     * findAndAddDynamicOptions 
-     * 
-     * @param mixed $values 
-     * @param mixed $options 
+     * getFieldSchema
+     *
+     * @param mixed $key
+     * @access public
+     * @return void
+     */
+    public function getFieldSchema($raw = false)
+    {
+        $data = $this->get('schema');
+        return (!is_null($data)) ? ($raw ? gzuncompress(base64_decode($data)) : json_decode(gzuncompress(base64_decode($data)))) : array();
+    }
+
+    /**
+     * writeFieldSchema
+     *
+     * @param array $data
+     * @param mixed $settings
+     * @param mixed $convert
+     * @access public
+     * @return void
+     */
+    public function writeFieldSchema(array $data, $settings = NULL, $convert = false)
+    {
+        return base64_encode(gzcompress(json_encode($data)));
+    }
+
+    /**
+     * findAndAddDynamicOptions
+     *
+     * @param mixed $values
+     * @param mixed $options
      * @static
      * @access public
      * @return void
@@ -217,7 +244,8 @@ class fielddynamictextgroup extends Field
      * @author Thomas Appel <mail@thomas-appel.com>
      * @return Mixed Boolean false or XMLElement
      */
-    private function _createFieldEditor() {
+    private function _createFieldEditor()
+    {
 
         if (!$this->get('id')) {
             return false;
@@ -228,9 +256,9 @@ class fielddynamictextgroup extends Field
 
         // create field-setting templates
         foreach(explode(' ', Textgroup::getFieldTypes()) as $type) {
-            $opts = $type === 'select' ? array('dynamic_options' => self::_getSectionLinkVals(NULL, $this->get('id'))) : NULL;
+            $opts = $type === 'select' ? (object)array(dynamic_options => self::_getSectionLinkVals(NULL, $this->get('id'))) : NULL;
             $opt_templates .= Textgroup::make_template(true, $type, $opts);
-        } 
+        }
 
         // Editor wrapper
         $fieldset = new XMLElement('fieldset');
@@ -248,39 +276,41 @@ class fielddynamictextgroup extends Field
 
         // hidden settings fields
         $hidden_fields = Array();
-        $hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', $this->get('schema')), 'hidden', array('class' => 'schema'));
+        $hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', $this->getFieldSchema(true)), 'hidden', array('class' => 'schema'));
         $hidden_fields[] = Widget::Input('fields['. $sortorder . '][addfields]', NULL, 'hidden', array('class' => 'addfields'));
         $hidden_fields[] = Widget::Input('fields['. $sortorder . '][delfields]', NULL, 'hidden', array('class' => 'delfields'));
         $hidden_fields[] = Widget::Input('fields['. $sortorder . '][renfields]', NULL, 'hidden', array('class' => 'renfields'));
 
 
         $field_wrapper->appendChildArray($hidden_fields);
-        $schema = $this->get('schema');
 
         $fields = array();
 
+        $schema = $this->getFieldSchema();
+
+
         // create settings fields from json schema
-        if (isset($schema)) {
-            foreach (json_decode($schema, true) as $s) {
-                $type = $s['options']['type'];
+        if (!empty($schema)) {
+            foreach ($schema as &$field) {
+                $type = $field->options->type;
 
                 if ($type == 'select') {
-                    $s['options']['dynamic_options'] = self::_getSectionLinkVals(isset($s['options']['dynamic_values']) ? $s['options']['dynamic_values'] : NULL , $this->get('id'));
-                } 
+                    $field->options->dynamic_options = self::_getSectionLinkVals(isset($field->options->dynamic_values) ? $field->options->dynamic_values : NULL , $this->get('id'));
+                }
 
-                if (isset($s['options']['group_name'])) {
-                    $s['options']['add_group_field'] = (intVal($this->get('allow_new_items')) == 1) ? false : true;
-                } 
+                if (isset($field->options->group_name)) {
+                    $field->options->add_group_field = (intVal($this->get('allow_new_items')) == 1) ? false : true;
+                }
 
-                $opt_template = Textgroup::make_template(false, $type, $s['options']);
+                $opt_template = Textgroup::make_template(false, $type, $field->options);
 
-                $s['options']['dynamic_options'] = NULL;
-                unset($s['options']['dynamic_options']); 
+                $field->options->dynamic_options = NULL;
+                unset($field->options->dynamic_options);
 
-                $fields[] = self::_createSettinsFields($s['label'], $s, $this->get('element_name'), 'instance', $opt_template);
+                $fields[] = self::_createSettingsFields($field->label, $field, $this->get('element_name'), 'instance', $opt_template);
             }
         }
-        $fields[] = self::_createSettinsFields($s['label'], NULL, $this->get('element_name'), 'template', Textgroup::make_template(false, 'text'));
+        $fields[] = self::_createSettingsFields($field->label, NULL, $this->get('element_name'), 'template', Textgroup::make_template(false, 'text'));
         $field_list->appendChildArray($fields);
 
         return $fieldset;
@@ -288,20 +318,20 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * displaySettingsPanel 
-     * 
+     * displaySettingsPanel
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displaySettingsPanel
      */
     public function displaySettingsPanel(&$wrapper, $errors=NULL)
     {
-        
+
         // Initialize field settings based on class defaults (name, placement)
         parent::displaySettingsPanel($wrapper, $errors);
 
         $sortorder = $this->get('sortorder');
 
-        
-        // Field Editor 
+
+        // Field Editor
         $editor = $this->_createFieldEditor();
 
         if ($editor) {
@@ -340,11 +370,11 @@ class fielddynamictextgroup extends Field
     }
 
     /**
-     * appendCheckbox 
-     * 
-     * @param XMLElement $wrapper 
-     * @param mixed $fname 
-     * @param mixed $value 
+     * appendCheckbox
+     *
+     * @param XMLElement $wrapper
+     * @param mixed $fname
+     * @param mixed $value
      * @static
      * @access public
      * @return void
@@ -380,8 +410,8 @@ class fielddynamictextgroup extends Field
      * @param $opt_content	String		optional markup to be appended to the fieldsettingbox
      *
      * @return  XMLElement
-     */ 
-    private static function _createSettinsFields($handle=NULL, $options=NULL, $name=NULL, $class=NULL, $opt_content=NULL)
+     */
+    private static function _createSettingsFields($handle=NULL, $options=NULL, $name=NULL, $class=NULL, $opt_content=NULL)
     {
 
         $header = new XMLElement('div', NULL, array('class' => 'content'));
@@ -392,8 +422,8 @@ class fielddynamictextgroup extends Field
 
         $li = new XMLElement('li', NULL, array(
             'class' => $class . ' field-holder',
-            'data-settings' => is_array($options) ? 
-                preg_replace('/\"/i', '&#34;', json_encode($options)) : 
+            'data-settings' => is_object($options) ?
+                preg_replace('/\"/i', '&#34;', json_encode($options)) :
                 preg_replace('/\"/i', '&#34;', json_encode(self::$_dynamic_field_defaults)),
             'data-name' => $name,
             'data-type' => $name,
@@ -407,12 +437,12 @@ class fielddynamictextgroup extends Field
         $li->appendChild($header);
         return $li;
     }
-    
+
 
     /**
      * checkFields
      *
-     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkFields 
+     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkFields
      */
     public function checkFields(&$errors, $checkForDuplicates=true)
     {
@@ -422,7 +452,7 @@ class fielddynamictextgroup extends Field
     /**
      * checkFields
      *
-     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#commit 
+     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#commit
      */
     public function commit()
     {
@@ -430,8 +460,7 @@ class fielddynamictextgroup extends Field
 
         $id = $this->get('id');
         $fields = array();
-        $schema = $this->get('schema');
-        $schema = isset($schema) ? json_decode($this->get('schema'), true) : NULL;
+        $schema = json_decode($this->get('schema'));
 
 
         $fields['field_id'] = $id;
@@ -446,16 +475,16 @@ class fielddynamictextgroup extends Field
 
             foreach($fields_added as $handle => $value) {
                 $value = trim($value);
-                if (strlen($value) > 0) self::alterTable(1, Lang::createHandle($value));
+                if (strlen($value) > 0) self::alterTable(1, Lang::createHandle($value), NULL, $this->get('id'));
             }
         }
-        
+
         // remove deleted fields
         $fields_deleted = json_decode($this->get('delfields'), true);
 
         if (is_array($fields_deleted) && !empty($fields_deleted)) {
             foreach($fields_deleted as $handle) {
-                self::alterTable(0, $handle);
+                self::alterTable(0, $handle, NULL, $this->get('id'));
             }
         }
 
@@ -466,46 +495,47 @@ class fielddynamictextgroup extends Field
 
             foreach($fields_renamed as $handle => $value) {
                 $value = trim($value);
-                if (strlen($value) > 0) self::alterTable(2, $handle, Lang::createHandle($value));
+                if (strlen($value) > 0) self::alterTable(2, $handle, Lang::createHandle($value), $this->get($id));
             }
         }
 
 
         $this->removeSectionAssociation($id);
-        $keys = array();
+        //$keys = array();
+        $allow_new_items = $fields['allow_new_items'] == 1;
 
-        if (!is_null($schema)) {
+        if (is_array($schema)) {
             foreach($schema as &$field) {
 
-                if (!isset($field['handle'])) {
-                    $field['handle'] = Lang::createHandle($field['label']);
-                }
+                print_r($field->label);
+                print_r($field);
 
-                $field_id = $field['options']['dynamic_values'];
+                $field->handle = Lang::createHandle($field->label);
+
+                $field_id = $field->options->dynamic_values;
 
                 if (!is_null($field_id) &&  is_numeric($field_id)) {
                     $this->createSectionAssociation(NULL, $id, $field_id, true);
                 }
 
-                if (isset($field['options']['group_name']) && $fields['allow_new_items'] == 1) {
-                    unset($field['options']['group_name']);
+                if (isset($field->options->group_name) && $allow_new_items) {
+                    unset($field->options->group_name);
                 }
 
-                $keys[][$field['handle']] = $field['handle'];
+                //$keys[][$field->handle] = $field->handle;
             }
-            $fields['schema'] = json_encode($schema);
-
+            $fields['schema'] = $this->writeFieldSchema($schema);
         }
 
         Symphony::Database()->query("DELETE FROM `tbl_fields_" . $this->handle() . "` WHERE `field_id` = '$id' LIMIT 1");
         return Symphony::Database()->insert($fields, 'tbl_fields_' . $this->handle());
-    }	
+    }
 
     /**
      * alterTable
      *
      */
-    protected static function alterTable($mode, $col, $rename=NULL)
+    protected static function alterTable($mode, $col, $rename=NULL, $id)
     {
         // Function $mode options:
         // 0 = Delete column; 	e.g.  alterTable(0, 'badcolumn');
@@ -514,21 +544,21 @@ class fielddynamictextgroup extends Field
         switch ($mode) {
             case 0:
                 // Delete column
-                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $this->get('id') . "` DROP COLUMN `". $col ."`");
+                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $id . "` DROP COLUMN `". $col ."`");
                 break;
             case 1:
                 // Add column
-                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $this->get('id') . "` ADD COLUMN `". $col ."` varchar(255) null");
+                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $id . "` ADD COLUMN `". $col ."` varchar(255) null");
                 break;
             case 2:
                 // Rename column
-                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $this->get('id') . "` CHANGE `". $col ."` `". $rename ."` varchar(255) null");
+                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $id . "` CHANGE `". $col ."` `". $rename ."` varchar(255) null");
                 break;
             default:
                 return false;
         }
     }
-    
+
     /**
      * create select options for select fields on the publish panel
      *
@@ -536,8 +566,8 @@ class fielddynamictextgroup extends Field
      * @param		$field		Object
      *
      * @return		void
-     */ 	
-    private function _makePublishSelectOptions($data = NULL, stdClass $field) 
+     */
+    private function _makePublishSelectOptions($data = NULL, stdClass $field)
     {
 
 
@@ -560,19 +590,19 @@ class fielddynamictextgroup extends Field
 
         $field->options->selectOptions = $select_opts;
         unset($select_opts);
-    }	
+    }
 
-    /** 
+    /**
      * displayPublishPanel
      *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#displayPublishPanel
      */
-    function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL) 
+    public function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL)
     {
-        
+
         // Get settings
         $settings = array();
-        
+
         $schema = json_decode($this->get('schema'));
         $fieldCount = $this->get('fieldcount');
 
@@ -586,7 +616,7 @@ class fielddynamictextgroup extends Field
                 if (!is_array($row)) $row = array($row);
                 if (count($row) > $entryCount) $entryCount = count($row);
             }
-            
+
             for($i=0; $i<$entryCount; $i++) {
                 foreach ($schema as &$field) {
                     $entryValues[$i][] = $data[$field->handle][$i];
@@ -609,22 +639,22 @@ class fielddynamictextgroup extends Field
             }
             $content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, NULL, NULL, $schema, $sortable);
         }
-            
+
         // Add template:
         if ($this->get('allow_new_items')) {
             $content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, NULL, 'template', $schema, $sortable);
         }
-        
+
         // Create stage:
         $stage = new XMLElement('div', NULL, array('class' => 'dtg-stage' . ($sortable ? ' orderable' : '')));
         $stageInner = new XMLElement('ol');
-        
+
         $stage->appendChild($stageInner);
         $stageInner->appendChildArray($content);
-        
+
         // Field label:
         $holder = new XMLElement('div');
-        
+
         $label = new XMLElement('label', $this->get('label'));
         if ($this->get('required') != 'yes') {
             $label->appendChild(new XMLElement('i', __('Optional')));
@@ -639,40 +669,47 @@ class fielddynamictextgroup extends Field
         if ($this->get('allow_sorting_items')) {
             $stage->addClass('sortable');
         }
-        
+
         if($flagWithError != NULL) $wrapper->appendChild(Widget::wrapFormElementWithError($holder, $flagWithError));
         else $wrapper->appendChild($holder);
     }
-    
-    
+
+
+
     /**
      * TODO fix this
      *
-     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkPostFieldData 
+     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#checkPostFieldData
      */
     public function checkPostFieldData($data, &$message, $entry_id=NULL)
     {
+        $data = is_array($data) ? $data : array();
         $message = __("'%s' is a required field.", array($this->get('label')));
-        
-        $schema = json_decode($this->get('schema'));
-        
-        $sampling = $schema[0]->handle;
-        $entryCount = count($data[$sampling]);
-        
+
+        $schema = $this->getFieldSchema();
+        $entryCount = sizeof($data[0]);
+
+
         $empty = true;
-        
+
         $badValidate = false;
-        $badDate = array();
-        $badRadio = array();
-        $badCheck = array();
-        
+
+
+        $badDate    = array();
+        $badRadio   = array();
+        $badCheck   = array();
+
         $checkItems = array();
         $radioItems = array();
-        
-        for($i=0; $i<$entryCount; $i++) {
+
+
+        foreach($data as $i => $entry) {
+
             $emptyRow = true;
             $emptyReq = false;
-            foreach ($schema as $f=>$field) {
+
+            foreach ($schema as $f => $field) {
+
                 // Get/set required option:
                 $req = $field->options->required ? true : false;
                 switch ($field->options->type) {
@@ -703,7 +740,7 @@ class fielddynamictextgroup extends Field
                             $emptyRow = false;
                         }
                         break;
-                        
+
                     case 'select':
                         if ($req && $data[$field->handle][$i] == '') {
                             $emptyReq = true;
@@ -712,7 +749,7 @@ class fielddynamictextgroup extends Field
                             $emptyRow = false;
                         }
                         break;
-                        
+
                     case 'checkbox':
                         if ($i == 0) $checkItems[$f] = false;
                         if ($data[$field->handle][$i] == 'yes') {
@@ -724,7 +761,7 @@ class fielddynamictextgroup extends Field
                             $badCheck[] = array('handle' => $field->handle.'-holder');
                         }
                         break;
-                        
+
                     case 'radio':
                         if ($i == 0) $radioItems[$f] = false;
                         if ($data[$field->handle][$i] == 'yes') {
@@ -738,13 +775,13 @@ class fielddynamictextgroup extends Field
                         break;
                 }
             }
-            
+
             if (!$emptyRow && $emptyReq) {
                 $message = __("'%s' contains required fields that are empty.", array($this->get('label')));
                 return self::__MISSING_FIELDS__;
             }
         }
-        
+
         if (!empty($badValidate)) {
             $badValidate = json_encode($badValidate);
             $message = __("'%s' contains invalid data. Please check the contents.<input type='hidden' id='badItems' value='%s' />", array($this->get('label'), $badValidate));
@@ -765,39 +802,39 @@ class fielddynamictextgroup extends Field
             $message = __("'%s' contains required fields that are empty. <input type='hidden' id='badItems' value='%s' />", array($this->get('label'), $badCheck));
             return self::__MISSING_FIELDS__;
         }
-        
+
         if ($empty && $this->get('required') == 'yes') return self::__MISSING_FIELDS__;
-        
-        return self::__OK__;
+
+        return self::__MISSING_FIELDS__;
     }
-    
-    
-    /** 
+
+
+    /**
      * processRawFieldData
      *
-     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#processRawFieldData 
+     * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#processRawFieldData
      */
     public function processRawFieldData($data, &$status, $simulate=false, $entry_id=NULL)
     {
         $status = self::__OK__;
         if(!is_array($data)) return NULL;
-        
+
         $result = array();
         $count = $this->get('fieldcount');
-        
+
         // Check for the field with the most values
         $entryCount = 0;
         foreach ($data as $row) if (count($row) > $entryCount) $entryCount = count($row);
-        
+
         // Check for empties
         $empty = true;
-        
+
         for($i=0; $i < $entryCount; $i++) {
             $emptyEntry = true;
             foreach ($data as &$field) {
                 if (!empty($field[$i])) {
-                    $empty = false;	
-                    $emptyEntry = false;	
+                    $empty = false;
+                    $emptyEntry = false;
                     // care for multiple select controls
                     if (is_array($field[$i])) {
                         $field[$i] = implode(',', $field[$i]);
@@ -823,8 +860,8 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * createTable 
-     * 
+     * createTable
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#createTable
      */
     public function createTable()
@@ -841,9 +878,9 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * prepareTableValue 
-     * 
-     * @param mixed $data 
+     * prepareTableValue
+     *
+     * @param mixed $data
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#prepareTableValue
      */
     public function prepareTableValue($data, XMLElement $link=NULL)
@@ -851,7 +888,7 @@ class fielddynamictextgroup extends Field
         if (is_array($data)) {
             $keys = array_keys($data);
             $key = $keys[0];
-            
+
             if(!is_array($data[$key])) $data[$key] = array($data[$key]);
             if ($data[$key][0] != null) {
                 $strung = count($data[$key]) == 1 ? count($data[$key]) . ' item' : count($data[$key]) . ' items';
@@ -866,8 +903,8 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * buildDSRetrivalSQL 
-     * 
+     * buildDSRetrivalSQL
+     *
      * Accepted filter:
      * handle:value	(e.g. first-name:Brock)
      * Where 'handle' is equal to the handle of a subfield, and 'value' is equal to the input of said subfield. All entries with a matching value in this subfield will be returned.
@@ -877,7 +914,7 @@ class fielddynamictextgroup extends Field
     public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false)
     {
         $field_id = $this->get('id');
-        
+
         if (preg_match('/.*:.*/', $data[0])) {
             $this->_key++;
             $joins .= "
@@ -886,11 +923,11 @@ class fielddynamictextgroup extends Field
                 ON
                     (e.id = t{$field_id}_{$this->_key}.entry_id)
             ";
-            
+
             $data[0] = explode(':', trim($this->cleanValue($data[0])));
             $handle = $data[0][0];
             $value = $data[0][1];
-            
+
             $where .= "
                 AND (
                     `t{$field_id}_{$this->_key}`.`{$handle}` IN ('{$value}')
@@ -910,8 +947,8 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * appendFormattedElement 
-     * 
+     * appendFormattedElement
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#appendFormattedElement
      */
     public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null, $entry_id)
@@ -922,7 +959,7 @@ class fielddynamictextgroup extends Field
         $schema = json_decode($this->get('schema'));
         $sampling = $schema[0]->handle;
         $entryCount = count($data[$sampling]);
-            
+
         // Parse data
         $textgroup = new XMLElement($this->get('element_name'));
         if(is_array($data)) {
@@ -945,7 +982,7 @@ class fielddynamictextgroup extends Field
                     $f->appendChildArray($val);
                 // is datefield
                 } elseif ($field->options->type == 'date') {
-                    $f->setAttribute('time', NULL);	
+                    $f->setAttribute('time', NULL);
                     $f->setAttribute('weekday', NULL);
                     $f = General::createXMLDateObject($data[$field->handle][$i], $field->handle);
                 } else {
@@ -970,12 +1007,12 @@ class fielddynamictextgroup extends Field
 
 
     /**
-     * getExampleFormMarkup 
-     * 
+     * getExampleFormMarkup
+     *
      * @access public
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/field/#getExampleFormMarkup
      */
-    public function getExampleFormMarkup() 
+    public function getExampleFormMarkup()
     {
         $label = Widget::Label($this->get('label'));
         $schema = json_decode($this->get('schema'));
