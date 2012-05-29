@@ -276,7 +276,7 @@ class fielddynamictextgroup extends Field
 
         // hidden settings fields
         $hidden_fields = Array();
-        $hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', $this->getFieldSchema(true)), 'hidden', array('class' => 'schema'));
+        $hidden_fields[] = Widget::Input('fields['. $sortorder . '][schema]', preg_replace('/\"/i', '&#34;', json_encode($this->getFieldSchema(true))), 'hidden', array('class' => 'schema'));
         $hidden_fields[] = Widget::Input('fields['. $sortorder . '][addfields]', NULL, 'hidden', array('class' => 'addfields'));
         $hidden_fields[] = Widget::Input('fields['. $sortorder . '][delfields]', NULL, 'hidden', array('class' => 'delfields'));
         $hidden_fields[] = Widget::Input('fields['. $sortorder . '][renfields]', NULL, 'hidden', array('class' => 'renfields'));
@@ -475,7 +475,7 @@ class fielddynamictextgroup extends Field
 
             foreach($fields_added as $handle => $value) {
                 $value = trim($value);
-                if (strlen($value) > 0) self::alterTable(1, Lang::createHandle($value), NULL, $this->get('id'));
+                if (strlen($value) > 0) self::alterTable(1, Lang::createHandle($value), NULL, $id);
             }
         }
 
@@ -484,7 +484,7 @@ class fielddynamictextgroup extends Field
 
         if (is_array($fields_deleted) && !empty($fields_deleted)) {
             foreach($fields_deleted as $handle) {
-                self::alterTable(0, $handle, NULL, $this->get('id'));
+                self::alterTable(0, $handle, NULL, $id);
             }
         }
 
@@ -495,7 +495,7 @@ class fielddynamictextgroup extends Field
 
             foreach($fields_renamed as $handle => $value) {
                 $value = trim($value);
-                if (strlen($value) > 0) self::alterTable(2, $handle, Lang::createHandle($value), $this->get($id));
+                if (strlen($value) > 0) self::alterTable(2, $handle, Lang::createHandle($value), $id);
             }
         }
 
@@ -544,15 +544,15 @@ class fielddynamictextgroup extends Field
         switch ($mode) {
             case 0:
                 // Delete column
-                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $id . "` DROP COLUMN `". $col ."`");
+                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_{$id}` DROP COLUMN `{$col}`");
                 break;
             case 1:
                 // Add column
-                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $id . "` ADD COLUMN `". $col ."` varchar(255) null");
+                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_{$id}` ADD COLUMN `{$col}` varchar(255) null");
                 break;
             case 2:
                 // Rename column
-                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_" . $id . "` CHANGE `". $col ."` `". $rename ."` varchar(255) null");
+                Symphony::Database()->query("ALTER TABLE `tbl_entries_data_{$id}` CHANGE `{$col}` `{$rename}` varchar(255) null");
                 break;
             default:
                 return false;
