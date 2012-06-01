@@ -53,27 +53,27 @@ class FieldDynamicTextgroup extends Field
     /**
      * canFilter
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#canFilter
+     * @see toolkit.Field#canFilter
      */
     public function canFilter()
     {
-        return true;
+        return false;
     }
 
     /**
      * isSortable
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#isSortable
+     * @see toolkit.Field#isSortable
      */
     public function isSortable()
     {
-        return true;
+        return false;
     }
 
     /**
      * canPrePopulate
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#canPrePopulate
+     * @see toolkit.Field#canPrePopulate
      */
     public function canPrePopulate()
     {
@@ -83,7 +83,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * allowDatasourceOutputGrouping
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#allowDatasourceOutputGrouping
+     * @see toolkit.Field#allowDatasourceOutputGrouping()
      */
     public function allowDatasourceOutputGrouping()
     {
@@ -93,8 +93,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * allowDatasourceParamOutput
      *
-     * @see http://symphony-cms.com/
-     * learn/api/2.3/toolkit/field/#allowDatasourceParamOutput
+     * @see toolkit.Field#allowDatasourceParamOutput()
      */
     public function allowDatasourceParamOutput()
     {
@@ -104,7 +103,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * __construct
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#__construct
+     * @see toolkit.Field#__construct
      */
     public function __construct()
     {
@@ -214,14 +213,13 @@ class FieldDynamicTextgroup extends Field
 
     /**
      * writeFieldSchema
+     * Take an Array, jsonifys, gzips and base64 encodes it
      *
-     * @param array $data
-     * @param mixed $settings
-     * @param mixed $convert
+     * @param array $data       the field schema array
      * @access public
-     * @return void
+     * @return string           the base64 encoded gzipeed jsonstring
      */
-    public function writeFieldSchema(array $data, $settings = null, $convert = false)
+    public function writeFieldSchema(array $data)
     {
         return base64_encode(@gzcompress(json_encode($data)));
     }
@@ -377,7 +375,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * displaySettingsPanel
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#displaySettingsPanel
+     * @see toolkit.Field#displaySettingsPanel
      */
     public function displaySettingsPanel(&$wrapper, $errors=null)
     {
@@ -505,7 +503,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * checkFields
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#checkFields
+     * @see toolkit.Field#checkFields
      */
     public function checkFields(&$errors, $checkForDuplicates=true)
     {
@@ -553,7 +551,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * checkFields
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#commit
+     * @see toolkit.Field#commit
      */
     public function commit()
     {
@@ -599,7 +597,7 @@ class FieldDynamicTextgroup extends Field
             }
         }
 
-        $this->removeSectionAssociation($id);
+        //$this->removeSectionAssociation($id);
         $allow_new_items = $fields['allow_new_items'] == 1;
 
         if (is_array($schema)) {
@@ -608,10 +606,11 @@ class FieldDynamicTextgroup extends Field
                 $field->handle = Lang::createHandle($field->label);
 
                 $field_id = $field->options->dynamic_values;
-
-                if (!is_null($field_id) &&  is_numeric($field_id)) {
-                    $this->createSectionAssociation(null, $id, $field_id, true);
-                }
+                // removeing section association because this won't work on
+                // multiple fields.
+                // if (!is_null($field_id) &&  is_numeric($field_id)) {
+                //   $this->createSectionAssociation(null, $id, $field_id, true);
+                // }
 
                 if (isset($field->options->group_name) && $allow_new_items) {
                     unset($field->options->group_name);
@@ -694,7 +693,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * displayPublishPanel
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#displayPublishPanel
+     * @see toolkit.Field#displayPublishPanel
      */
     public function displayPublishPanel(&$wrapper, $data=null, $flagWithError=null, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL)
     {
@@ -832,7 +831,7 @@ class FieldDynamicTextgroup extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#checkPostFieldData
+     * @see toolkit.Field#checkPostFieldData
      */
     public function checkPostFieldData($data, &$message, $entry_id = null)
     {
@@ -885,7 +884,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * processRawFieldData
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#processRawFieldData
+     * @see toolkit.Field#processRawFieldData
      */
     public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null)
     {
@@ -936,7 +935,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * createTable
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#createTable
+     * @see toolkit.Field#createTable
      */
     public function createTable()
     {
@@ -954,19 +953,23 @@ class FieldDynamicTextgroup extends Field
      * prepareTableValue
      *
      * @param mixed $data
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#prepareTableValue
+     * @see toolkit.Field#prepareTableValue
      */
     public function prepareTableValue($data, XMLElement $link=null)
     {
+        $string = __('no fields');
         if (is_array($data)) {
-            $keys = array_keys($data);
-            $key = $keys[0];
-            $strung = count($data[$key]) == 1 ? count($data[$key]) . ' item' : count($data[$key]) . ' items';
-        } else {
-            $strung = null;
+            $string = sizeof($data) > 1 ? sizeof($data) . __(' fields') : '1 field';
         }
 
-        return $strung;
+        if (!is_null($link)) {
+            $val = $string;
+            $string = $link;
+            $string->setValue($val);
+            $string = $string->generate();
+        }
+        return $string;
+
     }
 
     public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false)
@@ -981,7 +984,7 @@ class FieldDynamicTextgroup extends Field
      * handle:value (e.g. first-name:Brock)
      * Where 'handle' is equal to the handle of a subfield, and 'value' is equal to the input of said subfield. All entries with a matching value in this subfield will be returned.
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#buildDSRetrivalSQL
+     * @see toolkit.Field#buildDSRetrivalSQL
      */
     public function buildDSRetrievalSQL($data, &$joins, &$where, $andOperation = false)
     {
@@ -1011,7 +1014,24 @@ class FieldDynamicTextgroup extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#groupRecords
+     * buildSortingSQL
+     *
+     * @see toolkit.Field#buildDSRetrivalSQL()
+     */
+    public function buildSortingSQL(&$joins, &$where, &$sort, $order='ASC')
+    {
+        $schema = $this->getFieldSchema();
+        $field = $schema[0]->handle;
+        if (in_array(strtolower($order), array('random', 'rand'))) {
+            $sort = 'ORDER BY RAND()';
+        } else {
+            $joins .= "LEFT OUTER JOIN `tbl_entries_data_".$this->get('id')."` AS `ed` ON (`e`.`id` = `ed`.`entry_id`) ";
+            $sort = "ORDER BY `ed`.`{$field}` " . $order;
+        }
+    }
+
+    /**
+     * @see toolkit.Field#groupRecords
      */
     /*
     public function groupRecords($records)
@@ -1022,7 +1042,7 @@ class FieldDynamicTextgroup extends Field
     /**
      * appendFormattedElement
      *
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#appendFormattedElement
+     * @see toolkit.Field#appendFormattedElement
      */
     public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null, $entry_id)
     {
@@ -1076,7 +1096,7 @@ class FieldDynamicTextgroup extends Field
      * getExampleFormMarkup
      *
      * @access public
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#getExampleFormMarkup
+     * @see toolkit.Field#getExampleFormMarkup
      */
     public function getExampleFormMarkup()
     {
