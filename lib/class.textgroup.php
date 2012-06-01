@@ -30,7 +30,7 @@ class Textgroup
      * createNewTextGroup
      *
      * @param mixed $element
-     * @param int $fieldCount
+     * @param int   $fieldCount
      * @param mixed $values
      * @param mixed $class
      * @param mixed $schema
@@ -39,11 +39,12 @@ class Textgroup
      * @access public
      * @return void
      */
-    public static function createNewTextGroup($element, $fieldCount=2, $values=NULL, $class=NULL, $schema=NULL, $sortable = false) {
+    public static function createNewTextGroup($element, $fieldCount=2, $values=NULL, $class=NULL, $schema=NULL, $sortable = false)
+    {
         // Additional classes
         $classes = array();
 
-        if($class) {
+        if ($class) {
             $classes[] = $class;
         }
 
@@ -74,8 +75,8 @@ class Textgroup
     /**
      * __createTextField
      *
-     * @param mixed $element
-     * @param mixed $textvalue
+     * @param mixed    $element
+     * @param mixed    $textvalue
      * @param stdClass $schema
      * @static
      * @access private
@@ -91,14 +92,15 @@ class Textgroup
         $div = new XMLElement('div', NULL, array('class' => 'dtg-text dbox'));
         //$f_label->appendChild($field);
         $div->appendChild($field);
+
         return $div->generate();
     }
 
     /**
      * __createDateField
      *
-     * @param mixed $element
-     * @param mixed $textvalue
+     * @param mixed    $element
+     * @param mixed    $textvalue
      * @param stdClass $schema
      * @static
      * @access private
@@ -113,14 +115,15 @@ class Textgroup
         $field = Widget::Input('fields['. $element .']['. $handle .'][]', $textvalue, 'text', array('placeholder' =>$label));
         $div = new XMLElement('div', NULL, array('class' => 'dtg-date dbox'));
         $div->appendChild($field);
+
         return $div->generate();
     }
 
     /**
      * __createSelectField
      *
-     * @param mixed $element
-     * @param mixed $val
+     * @param mixed    $element
+     * @param mixed    $val
      * @param stdClass $schema
      * @static
      * @access private
@@ -148,8 +151,8 @@ class Textgroup
     /**
      * __createCheckboxField
      *
-     * @param mixed $element
-     * @param mixed $val
+     * @param mixed    $element
+     * @param mixed    $val
      * @param stdClass $schema
      * @static
      * @access private
@@ -171,14 +174,15 @@ class Textgroup
         }
         $f_label .= $field->generate() . $chk->generate() . $label .'</label>';
         $div = new XMLElement('div', $f_label, array('class' => 'dtg-checkbox dbox'));
+
         return $div->generate();
     }
 
     /**
      * __createRadioField
      *
-     * @param mixed $element
-     * @param mixed $val
+     * @param mixed    $element
+     * @param mixed    $val
      * @param stdClass $schema
      * @static
      * @access private
@@ -237,8 +241,8 @@ class Textgroup
      * _makeTypeOptions
      * creates fieldtype selectioen field
      *
-     * @param string    $selected option name to be selected
-     * @param boolean   $fieldset if set, wrapps the field in a fieldset (defaults to true)
+     * @param string  $selected option name to be selected
+     * @param boolean $fieldset if set, wrapps the field in a fieldset (defaults to true)
      * @static
      * @access private
      * @return void
@@ -255,6 +259,7 @@ class Textgroup
         if ($fieldset) {
             $opt = '<fieldset>' . $opt  . '</fieldset>';
         }
+
         return $opt;
     }
     /**
@@ -264,16 +269,17 @@ class Textgroup
      * @access public
      * @return string
      */
-    public static function getFieldTypes() {
+    public static function getFieldTypes()
+    {
         return self::field_types;
     }
 
     /**
      * create a fieldsettings template
      *
-     * @param boolean   $wrap       weather to wrap the template in script tag or not
-     * @param mixed     $type       the fieldtype the template will be ceated for
-     * @param array     $options    options array
+     * @param boolean $wrap    weather to wrap the template in script tag or not
+     * @param mixed   $type    the fieldtype the template will be ceated for
+     * @param array   $options options array
      * @static
      * @access public
      * @return void
@@ -281,6 +287,7 @@ class Textgroup
     public static function make_template($wrap = false, $type = null, $options = NULL)
     {
         $fn = '_tpl_options_' . $type;
+
         return self::$fn($wrap, $options);
     }
 
@@ -289,8 +296,8 @@ class Textgroup
      *
      *  settings template for radio field
      *
-     * @param boolean   $wrap       weather to wrap the template in script tag or not
-     * @param array     $options    options array
+     * @param boolean $wrap    weather to wrap the template in script tag or not
+     * @param array   $options options array
      * @static
      * @access private
      * @return void
@@ -313,6 +320,7 @@ class Textgroup
         if ($wrap) {
             $fields = self::_wrapInScriptTag('radio', $fields);
         }
+
         return $fields;
     }
 
@@ -320,8 +328,8 @@ class Textgroup
      * _tpl_options_select
      * settings template select field
      *
-     * @param boolean   $wrap       weather to wrap the template in script tag or not
-     * @param array     $options    options array
+     * @param boolean $wrap    weather to wrap the template in script tag or not
+     * @param array   $options options array
      * @static
      * @access private
      * @return void
@@ -344,6 +352,7 @@ class Textgroup
         if ($wrap) {
             $fields = self::_wrapInScriptTag('select', $fields);
         }
+
         return $fields;
     }
 
@@ -351,8 +360,8 @@ class Textgroup
      * _tpl_options_text
      * settings template for text field
      *
-     * @param boolean   $wrap       weather to wrap the template in script tag or not
-     * @param array     $options    options array
+     * @param boolean $wrap    weather to wrap the template in script tag or not
+     * @param array   $options options array
      * @static
      * @access private
      * @return void
@@ -374,14 +383,15 @@ class Textgroup
         if ($wrap) {
             $fields = self::_wrapInScriptTag('text', $fields);
         }
+
         return $fields;
     }
 
     /**
      * _tpl_options_date
      *
-     * @param boolean   $wrap       weather to wrap the template in script tag or not
-     * @param array     $options    options array
+     * @param boolean $wrap    weather to wrap the template in script tag or not
+     * @param array   $options options array
      * @static
      * @access private
      * @return void
@@ -396,6 +406,7 @@ class Textgroup
         if ($wrap) {
             $fields = self::_wrapInScriptTag('date', $fields);
         }
+
         return $fields;
     }
 
@@ -403,7 +414,7 @@ class Textgroup
      * _tpl_options_checkbox
      * settings template for checkbox field
      *
-     * @param boolean   $wrap       weather to wrap the template in script tag or not
+     * @param boolean $wrap weather to wrap the template in script tag or not
      * @static
      * @access private
      * @return void
@@ -414,6 +425,7 @@ class Textgroup
         if ($wrap) {
             $fields = self::_wrapInScriptTag('checkbox', $fields);
         }
+
         return $fields;
     }
 

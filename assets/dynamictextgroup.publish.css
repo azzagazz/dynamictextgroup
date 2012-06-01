@@ -207,7 +207,7 @@
 	}
 
 .dbox {
-	height: 100%;
+	/*height: 100%;*/
 	padding: 0 6px;
 	/*border-left: 1px solid #ccc;*/
 }
@@ -286,7 +286,7 @@
 	padding: 0;
 	position: relative;
 	margin: 0;
-	height: 100%;
+	/*height: 100%;*/
 	width: 100%;
 	display: block;	
 }

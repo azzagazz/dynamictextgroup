@@ -60,6 +60,7 @@
 			option.removeAttr('selected');
 		}
 		that._display.text(_getButtonText.call(that, _getSelectCount.call(that)));
+		this._element.trigger('change');
 	}
 
 	function _selfClose(event) {
@@ -138,6 +139,15 @@
 		event.stopPropagation();
 	}
 
+	function _ensureEmptySelection() {
+		var option = this._element.find('option[value=""]');
+		if (_getSelectCount.call(this) === 0) {
+			option.attr({'selected': 'selected', 'value': ''});
+		} else {
+			option.removeAttr('selected');
+		}
+	}
+
 	function MultiSelect(element, options) {
 		var that = this,
 		callback = $.proxy(_selfClose, this);
@@ -151,6 +161,10 @@
 		$win
 			.on('selfclose.mscontrols', '.dgt-multiselect-container', callback)
 			.on('click.mscontrols', ':not(.dgt-multiselect-list)', callback);
+
+		_ensureEmptySelection.call(this);
+
+		this._element.on('change', $.proxy(_ensureEmptySelection, this));
 	}
 
 	MultiSelect.prototype = {
@@ -202,10 +216,10 @@
 			event.preventDefault();
 			this.element.find('.select-control').each(function () {
 				var chk = $(this),
-				checked = $(this).is(':checked');
+				checked = chk.is(':checked');
 				chk[0].checked = true;
 				if (!checked) {
-					$(this).trigger('change.mscontrols');
+					chk.trigger('change.mscontrols');
 				}
 			});
 		},
@@ -214,10 +228,10 @@
 			event.preventDefault();
 			this.element.find('.select-control').each(function () {
 				var chk = $(this),
-				checked = $(this).is(':checked');
+				checked = chk.is(':checked');
 				chk[0].checked = false;
 				if (checked) {
-					$(this).trigger('change.mscontrols');
+					chk.trigger('change.mscontrols');
 				}
 			});
 		}

@@ -1,6 +1,7 @@
 (function ($, exports, undefined) {
 
 	function _replaceMultiplyName(element) {
+		console.log(element);
 		var index = element.parents().filter('li').index();
 		element[0].name = element[0].name.replace(/\[(\{\{multiple\}\}|\d)\]/i, '[' + index + ']');
 	}
@@ -37,7 +38,7 @@
 			});
 
 			field.on('constructshow.duplicator', function (event, element) {
-				var target = $(event.target).find('select[multiple]');
+				var target = $(event.target).find('select:multiple');
 				target.multiselect({
 					buttonText: _buttonLabel
 				});
@@ -67,7 +68,7 @@
 				fields.val('no');
 				field.val('yes');
 			}).on('orderstop.orderable', function (e) {
-				_replaceMultiplyName(manager.find('select[multiple'));
+				_replaceMultiplyName(manager.find('select:multiple'));
 			});
 
 

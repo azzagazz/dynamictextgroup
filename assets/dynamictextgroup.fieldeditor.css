@@ -1,4 +1,4 @@
-/* * 	
+/* *
  * *	Dynamic Text Group — Field Editor styling
  * *	@author: Brock Petrie, brockpetrie@gmail.com
  * *	@source: http://github.com/brockpetrie/dynamictextgroup
@@ -17,7 +17,7 @@
 	cursor: move;
 }
 .options {
-	right: 84px;	
+	right: 84px;
 	cursor: pointer;
 	background:url(images/dropdown-open.png) center center no-repeat transparent;
 }
@@ -39,16 +39,16 @@
 	color: #666;
 }
 a.destructor {
-	
+
 }
 .field-holder {
 	position: relative;
 	overflow: hidden;
 }
 
-li.field-holder.invalid .message {
-	padding-left: 12px;
-	padding-bottom: 6px;
+li.field-holder.invalid .content .message {
+	padding-left: 0px;
+	padding-top: 6px;
 }
 li.field-holder.invalid {
 	margin: 0;
@@ -80,25 +80,25 @@ li.field-holder.invalid > .content {
 	position: absolute;
 	right: 12px;
 	top: 14px;
-	color: #AEAEAE;	
+	color: #AEAEAE;
 	border-bottom: none;
 }
 .field-holder a.destructor:hover {
-	color: #3D3D3D;	
+	color: #3D3D3D;
 	border-bottom: none;
 }
 
 .frame {
 	overflow: visible;
 }
-.frame:before, .frame:after { 
-	content: ""; display: table; 
+.frame:before, .frame:after {
+	content: ""; display: table;
 }
-.frame:after { 
-	clear: both; 
+.frame:after {
+	clear: both;
 }
-.frame { 
-	zoom: 1; 
+.frame {
+	zoom: 1;
 }
 
 .stageHolder .stage {

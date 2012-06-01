@@ -4,30 +4,30 @@
 
 
 /**
- * extension_dynamictextgroup 
- * 
+ * extension_dynamictextgroup
+ *
  * @uses Extension
  * @package DynamicTextgroup
- * @author Brock Petrie <brockpetrie@gmail.com> 
- * @author Thomas Appel <mail@thomas-appel.com> 
+ * @author Brock Petrie <brockpetrie@gmail.com>
+ * @author Thomas Appel <mail@thomas-appel.com>
  */
-class extension_dynamictextgroup extends Extension 
+class extension_dynamictextgroup extends Extension
 {
-    
+
     /**
-     * install 
-     * 
+     * install
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#install
      */
     public function install()
     {
         $status = array();
-        
+
         // Create database field table
         $status[] = Symphony::Database()->query(
             "CREATE TABLE `tbl_fields_dynamictextgroup` (
-                `id` int(11) unsigned NOT NULL auto_increment,
-                `field_id` int(11) unsigned NOT NULL,
+                `id` int(11) unsigned NOT null auto_increment,
+                `field_id` int(11) unsigned NOT null,
                 `fieldcount` tinyint(1),
                 `allow_new_items` tinyint(1),
                 `allow_sorting_items` tinyint(1),
@@ -37,18 +37,17 @@ class extension_dynamictextgroup extends Extension
             )"
         );
 
-        // Report status
-        if(in_array(false, $status, true)) {
+        // Report status:
+        if (in_array(false, $status, true)) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
 
     /**
-     * getSubscribedDelegates 
-     * 
+     * getSubscribedDelegates
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#getSubscribedDelegates
      */
     public function getSubscribedDelegates()
@@ -63,10 +62,10 @@ class extension_dynamictextgroup extends Extension
     }
 
     /**
-     * hasInstance 
+     * hasInstance
      *
      * determine wheater an extension field is used on a backendpage or not
-     * 
+     *
      * @param mixed $ext_name name of the extension
      * @param mixed $section_handle handle of the section the field is used on
      * @param mixed $sid  section id of the section the field is used on
@@ -75,28 +74,28 @@ class extension_dynamictextgroup extends Extension
      * @access public
      * @return void
      */
-    public static function hasInstance($ext_name=NULL, $section_handle = NULL, $sid = NULL)
+    public static function hasInstance($ext_name=null, $section_handle = null, $sid = null)
     {
         $sid  = $sid ? $sid : SectionManager::fetchIDFromHandle($section_handle);
         $section = SectionManager::fetch($sid);
-        
+
         if ($section instanceof Section) {
             $fm = $section->fetchFields($ext_name);
             return is_array($fm) && !empty($fm);
         }
 
         return false;
-    }		
+    }
 
     /**
-     * _appendAssets 
-     * 
-     * @param  mixed $context 
+     * _appendAssets
+     *
+     * @param  mixed $context
      * @access public
      * @return void
      */
-    public function _appendAssets($context) 
-    {	
+    public function _appendAssets($context)
+    {
 
         $callback = Symphony::Engine()->getPageCallback();
 
@@ -112,8 +111,8 @@ class extension_dynamictextgroup extends Extension
         }
 
         // Append styles for section area
-        if($callback['driver'] == 'blueprintssections' && is_array($callback['context'])) {
-            if (self::hasInstance('dynamictextgroup', NULL, isset($callback['context'][1])? $callback['context'][1] : NULL)) {
+        if ($callback['driver'] == 'blueprintssections' && is_array($callback['context'])) {
+            if (self::hasInstance('dynamictextgroup', null, isset($callback['context'][1])? $callback['context'][1] : null)) {
                 Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.css', 'screen', 103, false);
                 Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/json2.js', 104, false);
                 Administration::instance()->Page->addScriptToHead(URL . '/extensions/dynamictextgroup/assets/dynamictextgroup.fieldeditor.js', 105, false);
@@ -122,20 +121,20 @@ class extension_dynamictextgroup extends Extension
     }
 
     /**
-     * uninstall 
-     * 
+     * uninstall
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#uninstall
      */
-    public function uninstall() 
+    public function uninstall()
     {
-    
+
         // Drop date and time table
         Symphony::Database()->query("DROP TABLE `tbl_fields_dynamictextgroup`");
     }
 
     /**
-     * update 
-     * 
+     * update
+     *
      * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#update
      */
     public function update($previousVersion)
