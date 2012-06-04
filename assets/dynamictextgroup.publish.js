@@ -1,7 +1,6 @@
 (function ($, exports, undefined) {
 
 	function _replaceMultiplyName(element) {
-		console.log(element);
 		var index = element.parents().filter('li').index();
 		element[0].name = element[0].name.replace(/\[(\{\{multiple\}\}|\d)\]/i, '[' + index + ']');
 	}
