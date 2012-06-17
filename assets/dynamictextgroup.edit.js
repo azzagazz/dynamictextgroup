@@ -1,3 +1,6 @@
+/*
+vim: set noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+*/
 (function ($, Symphony, exports, undefined) {
 
 	function setup(element) {

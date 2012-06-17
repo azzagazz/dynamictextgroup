@@ -1,11 +1,15 @@
-/* * 	
+/*
+vim: set noexpandtab tabstop=2 shiftwidth=2 softtabstop=2
+ */
+
+/* *
  * *	Dynamic Text Group styling
  * *	@author: Brock Petrie, brockpetrie@gmail.com
  * *	@source: http://github.com/brockpetrie/dynamictextgroup
  * */
-	
-.field-dynamictextgroup div.frame ul.selection li { 
-	padding-right: 0; 
+
+.field-dynamictextgroup div.frame ul.selection li {
+	padding-right: 0;
 }
 .field-dynamictextgroup .instance {
 	padding-bottom: 12px;
@@ -44,36 +48,36 @@
 	color: rgba(0, 0, 0, 0.3);
 	border-bottom: none;
 	font-weight: normal;
-	margin: 0;	
+	margin: 0;
 }
 /*
 .field-dynamictextgroup div.frame span {
-	padding: 3px 42px 4px 16px;
-	display: block;
-	width: 100%;
-	box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
+padding: 3px 42px 4px 16px;
+display: block;
+width: 100%;
+box-sizing: border-box;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
 }
-*/
+ */
 .field-dynamictextgroup div.frame span.fields {
 	background:none !important;
 	padding: 0px;
 	width: 100%;
-	}
+}
 .field-dynamictextgroup div.frame span.fieldHolder {
 	background:none !important;
 	padding: 0 3px 0 0;
 	width: 50%;
 	position:relative;
 	float: left;
-	}
-	.field-dynamictextgroup div.frame span.fieldHolder span {
-		}
+}
+.field-dynamictextgroup div.frame span.fieldHolder span {
+}
 
 .field-dynamictextgroup div.frame div.clear {
 	clear:both;
-	}
+}
 
 .field-dynamictextgroup div.frame span.fields em.label {
 	color: #BBB;
@@ -81,12 +85,12 @@
 	top:0;
 	right:10px;
 	margin-top: 0;
-	}
-	label > i > span.req { color:#d43; }
-	.invalid label > i > span.req { color:#fff; }
+}
+label > i > span.req { color:#d43; }
+.invalid label > i > span.req { color:#fff; }
 .field-dynamictextgroup div.frame span.fields em.end.label {
 	top: 28px;
-	}
+}
 
 
 
@@ -96,7 +100,7 @@
 	box-shadow: 0 0 5px #a7a7a7 !important;
 	-webkit-box-shadow: 0 0 5px #a7a7a7 !important;
 	-moz-box-shadow: 0 0 5px #a7a7a7 !important;
-	}
+}
 .field-dynamictextgroup div.frame span.fields input:focus { outline: none; }
 
 
@@ -108,29 +112,29 @@
 	border: 1px solid #C31;
 	border-top-width: 0;
 	border-bottom-color: #B21;margin-top: 1.5em;
-	}
-	.field-dynamictextgroup div.invalid label { border:none; margin-top:1px; margin-bottom:1.5em; }
-	.field-dynamictextgroup div.invalid label i { top:0; right:0; }
-	.field-dynamictextgroup div.invalid .frame { margin-bottom:0.75em; }
-	.field-dynamictextgroup div.invalid p {
-		margin: 0;
-		padding: 0;
-		background: none;
-		border: none;
-		}
+}
+.field-dynamictextgroup div.invalid label { border:none; margin-top:1px; margin-bottom:1.5em; }
+.field-dynamictextgroup div.invalid label i { top:0; right:0; }
+.field-dynamictextgroup div.invalid .frame { margin-bottom:0.75em; }
+.field-dynamictextgroup div.invalid p {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: none;
+}
 .field-dynamictextgroup .invalid .req input[value=""],
 .field-dynamictextgroup .invalid .req.empty .customStyleSelectBox,
 .field-dynamictextgroup .invalid .baditem input[type="text"],
 .field-dynamictextgroup .invalid .baditem label {
 	border: 1px solid #d42 !important;
-	}
+}
 .field-dynamictextgroup .invalid .new .req input[value=""] {
 	border: 1px solid #C2C2C2 !important;
-	}
+}
 .field-dynamictextgroup .invalid .new .req.empty .customStyleSelectBox {
 	border: 1px solid #C2C2C2 !important;
 	border-bottom-color:#bbb !important;
-	}
+}
 
 
 
@@ -151,7 +155,7 @@
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	float: left;
-	}
+}
 
 
 
@@ -160,34 +164,34 @@
 	position:relative;
 	top:3px;
 	font-size: 109.09%;
-	}
-	span.customStyleSelectBox {
-		font-size: 109.09%;
-		border: 1px solid #C2C2C2;
-		border-bottom-color:#bbb;
-		padding: 5px 5px 6px 5px !important;
-		line-height:1em;
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		box-sizing: border-box;
-		-webkit-border-radius: 2px;
-		-moz-border-radius: 2px;
-		border-radius: 2px;
-		float: left;
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #eee 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#eee));
-		background: -webkit-linear-gradient(top, #ffffff 0%,#eee 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#eee 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#eee 100%);
-		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee',GradientType=0 );
-		background: linear-gradient(top, #ffffff 0%,#eee 100%);
-		}
-	span.customStyleSelectBox span, span.customStyleSelectBox span:hover {
-		background:url(images/select-arrows.png) no-repeat center right !important;
-		padding:0 !important;
-		}
-	span.customStyleSelectBoxInner { background:url(images/select-arrows.png) no-repeat center right !important; }
+}
+span.customStyleSelectBox {
+	font-size: 109.09%;
+	border: 1px solid #C2C2C2;
+	border-bottom-color:#bbb;
+	padding: 5px 5px 6px 5px !important;
+	line-height:1em;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	float: left;
+	background: #ffffff;
+	background: -moz-linear-gradient(top, #ffffff 0%, #eee 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#eee));
+	background: -webkit-linear-gradient(top, #ffffff 0%,#eee 100%);
+	background: -o-linear-gradient(top, #ffffff 0%,#eee 100%);
+	background: -ms-linear-gradient(top, #ffffff 0%,#eee 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee',GradientType=0 );
+	background: linear-gradient(top, #ffffff 0%,#eee 100%);
+}
+span.customStyleSelectBox span, span.customStyleSelectBox span:hover {
+	background:url(images/select-arrows.png) no-repeat center right !important;
+	padding:0 !important;
+}
+span.customStyleSelectBoxInner { background:url(images/select-arrows.png) no-repeat center right !important; }
 
 
 
@@ -204,7 +208,7 @@
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	background:none;
-	}
+}
 
 .dbox {
 	/*height: 100%;*/
@@ -220,28 +224,28 @@
 .dbox:last-child {
 	padding-right: 0;
 }
-.dtg-checkbox.dbox label, 
+.dtg-checkbox.dbox label,
 .dtg-radio.dbox label {
 	/*top: 20px;*/
 	margin-bottom: 0;
-}	
+}
 .content .flexgroup {
 	width: 100%;
 	display: -webkit-box;
 	display: -moz-box;
 	display: box;
 
-	-webkit-box-orient: horizontal; 
+	-webkit-box-orient: horizontal;
 	-webkit-box-align: center;
 	-webkit-box-pack: justify;
 	-webkit-box-ordinal-group: 1;
 
-	-moz-box-orient: horizontal; 
+	-moz-box-orient: horizontal;
 	-moz-box-align: center;
 	-moz-box-pack: justify;
 	-moz-box-ordinal-group: 1;
 
-	box-orient: horizontal; 
+	box-orient: horizontal;
 	box-align: center;
 	box-pack: justify;
 	box-ordinal-group: 1;
@@ -250,13 +254,13 @@
 	-webkit-box-flex: 2;
 	-moz-box-flex: 2;
 	box-flex: 2;
-}	
+}
 .dtg-checkbox.dbox,
 .dtg-radio.dbox {
 	-webkit-box-flex: 1;
 	-moz-box-flex: 1;
 	box-flex: 1;
-}	
+}
 
 .ui-multiselect-checkboxes label {
 	margin-bottom: 0;
@@ -288,7 +292,7 @@
 	margin: 0;
 	/*height: 100%;*/
 	width: 100%;
-	display: block;	
+	display: block;
 }
 .dgt-multiselect .select-control {
 	display: none;
@@ -327,17 +331,17 @@
 .dgt-multiselect button {
 	text-align: left !important;
 	width: 100%;
-	display: block;	
+	display: block;
 }
 
 .frame {
 	overflow: visible;
 }
-.frame:before, .frame:after { 
-	content: ""; display: table; 
+.frame:before, .frame:after {
+	content: ""; display: table;
 }
-.frame:after { 
-	clear: both; 
+.frame:after {
+	clear: both;
 }
 .option {
 	cursor: pointer;

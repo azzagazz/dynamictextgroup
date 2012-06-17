@@ -1,5 +1,7 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+/*
+vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4
+*/
 
 (!defined('__IN_SYMPHONY__')) && die('You cannot directly access this file');
 

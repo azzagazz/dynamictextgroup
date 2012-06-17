@@ -1,3 +1,6 @@
+/*
+vim: set noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+*/
 (function ($, Symphony, exports, undefined) {
 	Symphony.Language.add({
 		'duplicate fieldnames: fieldnames must be unique': false
@@ -49,7 +52,9 @@
 			uri: EXP_URI,
 			number: EXP_NUM
 		};
-
+		function _localeComp(a, b) {
+			return a.localeCompare(b);
+		}
 		/**
 		 * Takes an onedimensional array and searhes for duplicates.
 		 * Duplicates indexes will be returned in an array (if any).
@@ -64,7 +69,7 @@
 			var array = [],
 			sort = [], indexes = [], l = arr.length, i = 0, j = 0;
 			array.push.apply(array, arr);
-			array.sort();
+			array.sort(_localeComp);
 
 			for (; i < l; i++) {
 				if (array[i + 1] === array[i]) {
