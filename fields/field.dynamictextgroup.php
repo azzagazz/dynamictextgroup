@@ -728,9 +728,7 @@ class FieldDynamicTextgroup extends Field
                 }
                 $content[] = Textgroup::createNewTextGroup($this->get('element_name'), $fieldCount, $entryValues[$i], null, $schema, $sortable);
             }
-        }
-        // Blank entry:
-        else {
+        } else { // blanc entry
             foreach ($schema as &$field) {
                 // append select box options
                 if ($field->options->type == 'select') {
@@ -1032,14 +1030,6 @@ class FieldDynamicTextgroup extends Field
         }
     }
 
-    /**
-     * @see toolkit.Field#groupRecords
-     */
-    /*
-    public function groupRecords($records)
-    {
-    }
-    */
 
     /**
      * appendFormattedElement
@@ -1048,50 +1038,25 @@ class FieldDynamicTextgroup extends Field
      */
     public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null, $entry_id)
     {
-        // Get field properties and decode schema
-        $fieldCount = $this->get('fieldcount');
-        $schema = json_decode($this->get('schema'));
-        $sampling = $schema[0]->handle;
-        $entryCount = count($data[$sampling]);
+        $elements = array();
 
-        // Parse data
-        $textgroup = new XMLElement($this->get('element_name'));
         if (is_array($data)) {
-            foreach ($data as &$row) {
-                if (!is_array($row)) $row = array($row);
-            }
-        }
-        for ($i=0; $i<$entryCount; $i++) {
-            $item = new XMLElement('item');
-            $empty = true;
-            foreach ($schema as $field) {
 
-                $f = new XMLElement($field->handle);
-                // is select box and can have multiple items:
-                if ($field->options->type == 'select' && $field->options->allow_multiple) {
-                    $val = array();
-                    $pieces = explode(',', $data[$field->handle][$i]);
-                    foreach ($pieces as $bit) {
-                        $val[] = new XMLElement('item', General::sanitize($bit));
-                    }
-                    $f->setAttribute('items', sizeof($val));
-                    $f->appendChildArray($val);
-                    // is datefield
-                } elseif ($field->options->type == 'date') {
-                    $f->setAttribute('time', null);
-                    $f->setAttribute('weekday', null);
-                    $f = General::createXMLDateObject($data[$field->handle][$i], $field->handle);
+            foreach ($data as $elementName => $value) {
+                $el = new XMLElement($elementName);
+                if (is_array($value)) {
+                    $this->appendFormattedElement($el, $value, $encode, $mode, $entry_id);
                 } else {
-                    $val = $data[$field->handle][$i] != ' ' ? General::sanitize($data[$field->handle][$i]) : '';
-                    $f->setValue($val);
+                    $el->setValue($value);
                 }
-                $item->appendChild($f);
+                $elements[] = $el;
             }
-            $textgroup->appendChild($item);
         }
 
-        // Append to data source
-        $wrapper->appendChild($textgroup);
+
+        if (!empty($elements)) {
+            $wrapper->appendChildArray($elements);
+        }
     }
 
     /**
