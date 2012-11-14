@@ -1049,7 +1049,7 @@ class FieldDynamicTextgroup extends Field
                 if(is_array($subElements)){
                     foreach ($subElements as $value) {
                        $f = new XMLElement('item');
-                       $f->setValue($value);
+                       $f->setValue(General::sanitize($value));
                        $item->appendChild($f);
                     }  
                 }
