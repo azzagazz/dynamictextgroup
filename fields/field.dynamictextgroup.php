@@ -1040,34 +1040,25 @@ class FieldDynamicTextgroup extends Field
     {   
 
         $fieldCount = $this->get('fieldcount');
-        $textGroup = array();
+        $textGroup = new XMLElement($this->get('element_name'));
+        $columns = array();
 
         if(is_array($data)) {
-            for ($i = 0; $i < $fieldCount; $i++) { 
-
-                $columns = array();
-                
-                foreach ($data as $elementName => $subElements) {
-                    $item = new XMLElement($elementName);
-                    
-                    if(is_array($subElements)){
-                        foreach ($subElements as $value) {
-                           $f = new XMLElement('item');
-                           $f->setValue($value);
-                           $item->appendChild($f);
-                        }  
-                    }
-                    
-                    $columns[] = $item;
-
+            foreach ($data as $elementName => $subElements) {
+                $item = new XMLElement($elementName);
+                if(is_array($subElements)){
+                    foreach ($subElements as $value) {
+                       $f = new XMLElement('item');
+                       $f->setValue($value);
+                       $item->appendChild($f);
+                    }  
                 }
-
-                $textGroup[$i] = new XMLElement($this->get('element_name'));
-                $textGroup[$i]->appendChildArray($columns);
+                $columns[] = $item;
             }
+            $textGroup->appendChildArray($columns);
         }
        
-        $wrapper->appendChildArray($textGroup);
+        $wrapper->appendChild($textGroup);
 
     }
 
