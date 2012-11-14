@@ -1041,9 +1041,11 @@ class FieldDynamicTextgroup extends Field
 
         $fieldCount = $this->get('fieldcount');
         $textGroup = array();
-
+        
+        $rows = count(array_slice($data, 0));
+        
         if(is_array($data)) {
-            for ($i = 0; $i < $fieldCount; $i++) { 
+            for ($i = 0; $i < $rows; $i++) { 
 
                 $columns = array();
                 
@@ -1053,7 +1055,7 @@ class FieldDynamicTextgroup extends Field
                     if(is_array($subElements)){
                         foreach ($subElements as $key => $value) {
                             if($key == $i){
-                                $item->setValue($value);
+                                $item->setValue(General::sanitize($value));
                             }
                         }  
                     }
