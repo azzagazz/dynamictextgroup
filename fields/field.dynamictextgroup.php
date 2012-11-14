@@ -1042,7 +1042,8 @@ class FieldDynamicTextgroup extends Field
         $fieldCount = $this->get('fieldcount');
         $textGroup = array();
         
-        $rows = count(array_slice($data, 0));
+        $sub = $data;
+        $rows = count(array_shift($sub));
         
         if(is_array($data)) {
             for ($i = 0; $i < $rows; $i++) { 
