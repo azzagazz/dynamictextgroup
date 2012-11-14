@@ -1037,26 +1037,38 @@ class FieldDynamicTextgroup extends Field
      * @see toolkit.Field#appendFormattedElement
      */
     public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null, $entry_id)
-    {
-        $elements = array();
+    {   
 
-        if (is_array($data)) {
+        $fieldCount = $this->get('fieldcount');
+        $textGroup = array();
 
-            foreach ($data as $elementName => $value) {
-                $el = new XMLElement($elementName);
-                if (is_array($value)) {
-                    $this->appendFormattedElement($el, $value, $encode, $mode, $entry_id);
-                } else {
-                    $el->setValue($value);
+        if(is_array($data)) {
+            for ($i = 0; $i < $fieldCount; $i++) { 
+
+                $columns = array();
+                
+                foreach ($data as $elementName => $subElements) {
+                    $item = new XMLElement($elementName);
+                    
+                    if(is_array($subElements)){
+                        foreach ($subElements as $value) {
+                           $f = new XMLElement('item');
+                           $f->setValue($value);
+                           $item->appendChild($f);
+                        }  
+                    }
+                    
+                    $columns[] = $item;
+
                 }
-                $elements[] = $el;
+
+                $textGroup[$i] = new XMLElement($this->get('element_name'));
+                $textGroup[$i]->appendChildArray($columns);
             }
         }
+       
+        $wrapper->appendChildArray($textGroup);
 
-
-        if (!empty($elements)) {
-            $wrapper->appendChildArray($elements);
-        }
     }
 
     /**
